@@ -16,6 +16,17 @@ import { getUserSocket } from "../sockets/soketsMap.js";
 
 dotenv.config({ path: "./.env" })
 
+const getCookieOptions = (req, maxAge) => {
+  const isSecure = req.secure || req.headers["x-forwarded-proto"] === "https" || process.env.NODE_ENV === "production";
+  return {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: isSecure ? "none" : "lax",
+    path: "/",
+    maxAge
+  };
+};
+
 const registerUser = asyncHandler(async (req, res, next) => {
   const {
     username,
@@ -123,41 +134,19 @@ const loginUser = asyncHandler(async (req, res) => {
 
   await user.save({ validateBeforeSave: false })
 
-  const partners = await getUserChatPartners(user._id)
-
-  const io = getIO()
-
-  let onlineUsers = []
-
-  if (partners) {
-    for (let partner of partners) {
-      if (getUserSocket(partner.toString())) {
-        io.to(partner.toString()).emit(socketEvents.USER_ONLINE, user?._id)
-        // console.log("Emitted Online Status to : ",partner.toString())
-        onlineUsers.push(partner.toString())
-      }
-    }
-    io.to(user._id.toString()).emit(socketEvents.ONLINE_USERS, onlineUsers)
-  }
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
-    })
-    .cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
+    .cookie("accessToken", accessToken, getCookieOptions(req, 24 * 60 * 60 * 1000))
+    .cookie("refreshToken", refreshToken, getCookieOptions(req, 7 * 24 * 60 * 60 * 1000))
     .json(
       new ApiResponse(200, {
         _id: user._id,
         username: user.username,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avtar: user.avtar,
       }, "Login Successful")
     )
 })
@@ -182,18 +171,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("accessToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
-    })
-    .clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
+    .clearCookie("accessToken", getCookieOptions(req, 24 * 60 * 60 * 1000))
+    .clearCookie("refreshToken", getCookieOptions(req, 7 * 24 * 60 * 60 * 1000))
     .json(
       new ApiResponse(200, "Logout Successful")
     )
@@ -433,18 +412,8 @@ const isVerifiedUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
-    .cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
+    .cookie("accessToken", accessToken, getCookieOptions(req, 7 * 24 * 60 * 60 * 1000))
+    .cookie("refreshToken", refreshToken, getCookieOptions(req, 7 * 24 * 60 * 60 * 1000))
     .json({
       isVerified: user.isVerified,
     })
@@ -881,7 +850,7 @@ const authMe = asyncHandler(async (req, res) => {
 
   try {
 
-        const decodedToken = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
 
     const user = await User.findById(decodedToken._id).select("-password")
 
@@ -922,18 +891,8 @@ const authMe = asyncHandler(async (req, res) => {
 
       return res
         .status(200)
-        .cookie("accessToken", tokens.accessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: 24 * 60 * 60 * 1000 // 1 day
-        })
-        .cookie("refreshToken", tokens.refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        })
+        .cookie("accessToken", tokens.accessToken, getCookieOptions(req, 24 * 60 * 60 * 1000))
+        .cookie("refreshToken", tokens.refreshToken, getCookieOptions(req, 7 * 24 * 60 * 60 * 1000))
         .json(
           new ApiResponse(200, user, "Authorize User.")
         )

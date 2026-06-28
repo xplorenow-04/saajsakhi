@@ -26,20 +26,23 @@ class UserApi {
         try {
             const response = await axios.post(`${this.baseUrl}/login`,
                 credentials,
-                {
-                    withCredentials: true
-                }
+                { withCredentials: true }
             );
+            if (response.data.success !== false) {
+                return {
+                    success: true,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            }
             return {
-                success: true,
-                message: response.data.message,
-                data: response.data.data
+                success: false,
+                message: response.data.message || "Invalid credentials"
             }
         } catch (error) {
             return {
                 success: false,
-                message: error.message,
-                error: error
+                message: error.response?.data?.message || error.message
             }
         }
     }

@@ -7,6 +7,7 @@ export const AuthProvider = ({children}) => {
 
     const [user,setUser] = useState(null)
     const [isLoggedIn,setIsLoggedIn] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)  // true until authMe resolves
     const [currentChatUser,setCurrentChatUser] = useState(null)
     const [messages,setMessages] = useState([])
 
@@ -16,7 +17,7 @@ export const AuthProvider = ({children}) => {
     }
 
     return (
-        <authContext.Provider value={{user,setUser ,isLoggedIn , setIsLoggedIn,login , currentChatUser,setCurrentChatUser, messages, setMessages}}>
+        <authContext.Provider value={{user, setUser, isLoggedIn, setIsLoggedIn, login, isLoading, setIsLoading, currentChatUser, setCurrentChatUser, messages, setMessages}}>
             {children}
         </authContext.Provider>
     )

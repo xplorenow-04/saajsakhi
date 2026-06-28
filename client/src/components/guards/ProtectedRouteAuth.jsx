@@ -1,17 +1,26 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { userAuthStore } from '../../store/userStore'
-import Home from '../../pages/user/Home'
 import { Navigate } from 'react-router-dom'
+import { authContext } from '../../context/AuthProvider'
 
-function ProtectedRouteAuth({children}) {
+function ProtectedRouteAuth({ children }) {
+    const { user } = userAuthStore()
+    const { isLoading } = useContext(authContext)
 
-    const {user} = userAuthStore()
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-surface-900">
+                <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+            </div>
+        )
+    }
 
-    if(user){
-        return <Navigate to="/" replace/>
+    if (user) {
+        // Redirect based on role
+        return <Navigate to={user.role === 'admin' ? '/admin' : '/'} replace />
     }
 
     return children
 }
 
-export default ProtectedRouteAuth
+export default ProtectedRouteAuth
