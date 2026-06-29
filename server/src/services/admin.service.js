@@ -15,12 +15,16 @@ class AdminService {
             logger.warn("Redis get failed", { error: e.message });
         }
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const firstDayOfPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const lastDayOfPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
-        const startOfYear = new Date(today.getFullYear(), 0, 1);
+        const now = new Date();
+        const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        const firstDayOfMonth = new Date(todayUTC.getTime());
+        firstDayOfMonth.setUTCDate(1);
+        const firstDayOfPrevMonth = new Date(firstDayOfMonth);
+        firstDayOfPrevMonth.setUTCMonth(firstDayOfPrevMonth.getUTCMonth() - 1);
+        const lastDayOfPrevMonth = new Date(firstDayOfMonth);
+        lastDayOfPrevMonth.setUTCDate(0);
+        lastDayOfPrevMonth.setUTCHours(23, 59, 59, 999);
+        const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
 
         const [
             totalUsers,
@@ -30,7 +34,6 @@ class AdminService {
             monthlyRevenue,
             prevMonthRevenue,
             topProducts,
-            dailyOrders,
             recentOrders,
             monthlyRevenueData
         ] = await Promise.all([
@@ -57,23 +60,6 @@ class AdminService {
                 { $group: { _id: null, total: { $sum: "$finalAmount" } } }
             ]),
             Product.find({ isActive: true }).sort({ viewCount: -1 }).limit(5).lean(),
-            Order.aggregate([
-                {
-                    $match: {
-                        createdAt: {
-                            $gte: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-                        }
-                    }
-                },
-                {
-                    $group: {
-                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                        count: { $sum: 1 },
-                        revenue: { $sum: "$finalAmount" }
-                    }
-                },
-                { $sort: { _id: 1 } }
-            ]),
             Order.find().sort({ createdAt: -1 }).limit(5)
                 .populate("user", "name email").lean(),
             Order.aggregate([
@@ -93,6 +79,17 @@ class AdminService {
             ])
         ]);
 
+        let dailyOrders = [];
+        try {
+            dailyOrders = await Order.aggregate([
+                { $match: { createdAt: { $gte: new Date(todayUTC.getTime() - 6 * 24 * 60 * 60 * 1000) } } },
+                { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 }, revenue: { $sum: "$finalAmount" } } },
+                { $sort: { _id: 1 } }
+            ]);
+        } catch (e) {
+            logger.warn("Daily orders aggregation failed", { error: e.message });
+        }
+
         const currentRevenue = monthlyRevenue[0]?.total || 0;
         const previousRevenue = prevMonthRevenue[0]?.total || 0;
 
@@ -105,6 +102,14 @@ class AdminService {
             return { month: i + 1, revenue: found?.revenue || 0 };
         });
 
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(todayUTC);
+            d.setUTCDate(d.getUTCDate() - (6 - i));
+            return d.toISOString().slice(0, 10);
+        });
+        const ordersByDayMap = {};
+        for (const d of dailyOrders) ordersByDayMap[d._id] = d;
+
         const result = {
             totalUsers,
             totalProducts,
@@ -116,7 +121,10 @@ class AdminService {
             ordersChange: 0,
             revenueChange,
             monthlyRevenueData: yearMonths,
-            ordersByDay: dailyOrders.map(d => ({ date: d._id, count: d.count, revenue: d.revenue })),
+            ordersByDay: last7Days.map(date => {
+                const found = ordersByDayMap[date];
+                return { date, count: found?.count || 0, revenue: found?.revenue || 0 };
+            }),
             topProducts: topProducts.map(p => ({
                 _id: p._id,
                 name: p.name,
