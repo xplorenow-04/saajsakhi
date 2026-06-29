@@ -52,7 +52,7 @@ export const getProductsService = async (queries = {}) => {
     }
 
     if (size && size.trim() !== "") {
-        dbQuery.sizes = size;
+        dbQuery["sizes.size"] = size;
     }
 
     if (discount === "true" || discount === true) {
@@ -143,8 +143,16 @@ export const getProductByIdService = async (productId) => {
  * Create a new product and invalidate lists caches
  */
 export const createProductService = async (productData, creatorId) => {
+    const baseSlug = (productData.name || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+    const randomSuffix = Math.random().toString(36).substring(2, 7);
+    const slug = baseSlug ? `${baseSlug}-${randomSuffix}` : randomSuffix;
+
     const product = await Product.create({
         ...productData,
+        slug,
         createdBy: creatorId
     });
 
@@ -178,6 +186,15 @@ export const updateProductService = async (productId, updateData) => {
                 }
             }
         }
+    }
+
+    if (updateData.name) {
+        const baseSlug = updateData.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
+        const randomSuffix = Math.random().toString(36).substring(2, 7);
+        updateData.slug = baseSlug ? `${baseSlug}-${randomSuffix}` : randomSuffix;
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -221,4 +238,35 @@ export const deleteProductService = async (productId) => {
     await deleteCachedKeys("products:featured");
 
     return { success: true, message: "Product and associated media deleted" };
+};
+
+/**
+ * Migration helper to ensure all existing products have unique slugs
+ */
+export const migrateProductSlugs = async () => {
+    try {
+        const productsWithoutSlug = await Product.find({
+            $or: [
+                { slug: { $exists: false } },
+                { slug: null },
+                { slug: "" }
+            ]
+        });
+
+        if (productsWithoutSlug.length > 0) {
+            console.log(`Found ${productsWithoutSlug.length} products without a slug. Migrating...`);
+            for (const prod of productsWithoutSlug) {
+                const baseSlug = (prod.name || "")
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/(^-|-$)+/g, '');
+                const randomSuffix = Math.random().toString(36).substring(2, 7);
+                prod.slug = baseSlug ? `${baseSlug}-${randomSuffix}` : randomSuffix;
+                await prod.save();
+            }
+            console.log("Product slugs migration completed successfully.");
+        }
+    } catch (err) {
+        console.error("Error running product slugs migration:", err);
+    }
 };

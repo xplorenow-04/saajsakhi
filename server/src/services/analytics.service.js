@@ -15,12 +15,12 @@ export const getDashboardAnalyticsService = async () => {
         return cached;
     }
 
-    // 1. Total count calculations
-    const totalUsers = await User.countDocuments({ role: "customer" });
+    // 1. Total count calculations (role updated to "user" to match new schema)
+    const totalUsers = await User.countDocuments({ role: "user" });
     const totalProducts = await Product.countDocuments({});
     const totalOrders = await Order.countDocuments({});
 
-    // 2. Monthly Revenue Estimate (Current Month)
+    // 2. Monthly Revenue Estimate (Current Month) - using finalAmount and lowercase "cancelled"
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     
@@ -28,13 +28,13 @@ export const getDashboardAnalyticsService = async () => {
         {
             $match: {
                 createdAt: { $gte: startOfMonth },
-                orderStatus: { $ne: "Cancelled" }
+                orderStatus: { $ne: "cancelled" }
             }
         },
         {
             $group: {
                 _id: null,
-                total: { $sum: "$totalPrice" }
+                total: { $sum: "$finalAmount" }
             }
         }
     ]);
@@ -57,7 +57,7 @@ export const getDashboardAnalyticsService = async () => {
         {
             $match: {
                 createdAt: { $gte: sixMonthsAgo },
-                orderStatus: { $ne: "Cancelled" }
+                orderStatus: { $ne: "cancelled" }
             }
         },
         {
@@ -66,7 +66,7 @@ export const getDashboardAnalyticsService = async () => {
                     year: { $year: "$createdAt" },
                     month: { $month: "$createdAt" }
                 },
-                revenue: { $sum: "$totalPrice" },
+                revenue: { $sum: "$finalAmount" },
                 orders: { $sum: 1 }
             }
         },
@@ -100,7 +100,7 @@ export const getDashboardAnalyticsService = async () => {
             $group: {
                 _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
                 ordersCount: { $sum: 1 },
-                revenue: { $sum: "$totalPrice" }
+                revenue: { $sum: "$finalAmount" }
             }
         },
         {

@@ -6,9 +6,9 @@ import { ApiError } from "../utils/apiUtils.js";
  * Get user's cart (creates one if not exists)
  */
 export const getCartService = async (userId) => {
-    let cart = await Cart.findOne({ userId }).populate("products.product");
+    let cart = await Cart.findOne({ user: userId }).populate("items.product");
     if (!cart) {
-        cart = await Cart.create({ userId, products: [] });
+        cart = await Cart.create({ user: userId, items: [] });
     }
     return cart;
 };
@@ -31,20 +31,23 @@ export const addToCartService = async (userId, productId, quantity = 1, size) =>
         throw new ApiError(400, `Insufficient stock. Only ${sizeStock} items available for size ${size}.`);
     }
 
-    let cart = await Cart.findOne({ userId });
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) {
-        cart = new Cart({ userId, products: [] });
+        cart = new Cart({ user: userId, items: [] });
     }
 
     // Check if product with same size already exists in cart
-    const itemIndex = cart.products.findIndex(
+    const itemIndex = cart.items.findIndex(
         (p) => p.product.toString() === productId && p.size === size
     );
 
+    const priceAtAdd = product.price - (product.price * (product.discount || 0)) / 100;
+
     if (itemIndex > -1) {
-        cart.products[itemIndex].quantity += quantity;
+        cart.items[itemIndex].quantity += quantity;
+        cart.items[itemIndex].priceAtAdd = priceAtAdd;
     } else {
-        cart.products.push({ product: productId, quantity, size });
+        cart.items.push({ product: productId, quantity, size, priceAtAdd });
     }
 
     await cart.save();
@@ -55,12 +58,12 @@ export const addToCartService = async (userId, productId, quantity = 1, size) =>
  * Update quantity or size of a cart item
  */
 export const updateCartItemService = async (userId, productId, quantity, size) => {
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ user: userId });
     if (!cart) {
         throw new ApiError(404, "Cart not found");
     }
 
-    const itemIndex = cart.products.findIndex(
+    const itemIndex = cart.items.findIndex(
         (p) => p.product.toString() === productId && p.size === size
     );
 
@@ -75,7 +78,10 @@ export const updateCartItemService = async (userId, productId, quantity, size) =
         throw new ApiError(400, `Insufficient stock. Only ${sizeStock} items available for size ${size}.`);
     }
 
-    cart.products[itemIndex].quantity = quantity;
+    cart.items[itemIndex].quantity = quantity;
+    if (product) {
+        cart.items[itemIndex].priceAtAdd = product.price - (product.price * (product.discount || 0)) / 100;
+    }
     await cart.save();
     
     return await getCartService(userId);
@@ -85,12 +91,12 @@ export const updateCartItemService = async (userId, productId, quantity, size) =
  * Remove an item from the cart
  */
 export const removeFromCartService = async (userId, productId, size) => {
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ user: userId });
     if (!cart) {
         throw new ApiError(404, "Cart not found");
     }
 
-    cart.products = cart.products.filter(
+    cart.items = cart.items.filter(
         (p) => !(p.product.toString() === productId && p.size === size)
     );
 
@@ -102,9 +108,9 @@ export const removeFromCartService = async (userId, productId, size) => {
  * Clear the entire cart
  */
 export const clearCartService = async (userId) => {
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ user: userId });
     if (cart) {
-        cart.products = [];
+        cart.items = [];
         await cart.save();
     }
     return cart;

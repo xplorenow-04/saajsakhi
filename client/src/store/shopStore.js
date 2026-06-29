@@ -7,7 +7,7 @@ export const useShopStore = create(
     devtools(
         (set, get) => ({
             // CART STATE
-            cart: { products: [] },
+            cart: { items: [] },
             cartLoading: false,
             cartError: null,
 
@@ -61,20 +61,20 @@ export const useShopStore = create(
                 set({ cartLoading: true, cartError: null });
                 const res = await cartApi.clearCart();
                 if (res.success) {
-                    set({ cart: { products: [] }, cartLoading: false });
+                    set({ cart: { items: [] }, cartLoading: false });
                 } else {
                     set({ cartError: res.message, cartLoading: false });
                 }
             },
 
             getCartCount: () => {
-                const products = get().cart?.products || [];
-                return products.reduce((total, item) => total + item.quantity, 0);
+                const items = get().cart?.items || [];
+                return items.reduce((total, item) => total + item.quantity, 0);
             },
 
             getCartTotal: () => {
-                const products = get().cart?.products || [];
-                return products.reduce((total, item) => {
+                const items = get().cart?.items || [];
+                return items.reduce((total, item) => {
                     const price = item.product?.discount > 0 
                         ? item.product.price - item.product.discount 
                         : item.product?.price || 0;

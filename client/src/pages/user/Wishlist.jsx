@@ -24,7 +24,7 @@ export default function Wishlist() {
   };
 
   const handleAddToCart = async (item) => {
-    const size = item.sizes?.[0] || 'M';
+    const size = item.sizes?.[0]?.size || 'M';
     const res = await addToCart(item._id, 1, size);
     if (res.success) {
       toast.success('Added to cart');

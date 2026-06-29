@@ -21,7 +21,7 @@ const ProductCard = memo(({ product, index = 0 }) => {
     e.stopPropagation();
     if (adding) return;
     setAdding(true);
-    const size = product.sizes?.[0] || 'M';
+    const size = product.sizes?.[0]?.size || 'M';
     const result = await addToCart(product._id, 1, size);
     if (result.success) {
       toast.success('Added to cart');

@@ -16,16 +16,17 @@ export const placeOrderService = async (userId, shippingInfo) => {
     }
 
     // Get user cart
-    const cart = await Cart.findOne({ userId }).populate("products.product");
-    if (!cart || cart.products.length === 0) {
+    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    if (!cart || cart.items.length === 0) {
         throw new ApiError(400, "Your cart is empty. Cannot place an order.");
     }
 
     const orderedProducts = [];
     let totalPrice = 0;
+    let totalDiscount = 0;
 
     // Verify stock and calculate total price
-    for (const item of cart.products) {
+    for (const item of cart.items) {
         const product = item.product;
         if (!product) {
             throw new ApiError(404, "One of the products in your cart no longer exists.");
@@ -37,48 +38,52 @@ export const placeOrderService = async (userId, shippingInfo) => {
             throw new ApiError(400, `Product [${product.name}] in size ${item.size} is out of stock or has insufficient quantity.`);
         }
 
-        const unitPrice = product.discount > 0 
-            ? product.price - product.discount 
-            : product.price;
+        const itemDiscount = (product.price * (product.discount || 0)) / 100;
+        totalPrice += product.price * item.quantity;
+        totalDiscount += itemDiscount * item.quantity;
 
-        totalPrice += unitPrice * item.quantity;
         orderedProducts.push({
             product: product._id,
-            quantity: item.quantity,
+            name: product.name,
             size: item.size,
-            price: unitPrice,
-            name: product.name // temporarily keep name for WhatsApp message construction
+            quantity: item.quantity,
+            price: product.price,
+            discount: product.discount || 0,
+            image: product.images?.[0]?.url || ""
         });
     }
 
     // Decrement stock in database (per-size)
-    for (const item of cart.products) {
+    for (const item of cart.items) {
         await Product.findOneAndUpdate(
             { _id: item.product._id, "sizes.size": item.size },
             { $inc: { "sizes.$.stock": -item.quantity } }
         );
     }
 
+    const finalAmount = totalPrice - totalDiscount;
+
     // Create the order
     const order = await Order.create({
-        userId,
+        user: userId,
         orderedProducts,
         totalPrice,
-        shippingAddress: `${address}, ${city} - ${pincode}`,
-        phone,
+        totalDiscount,
+        finalAmount,
+        shippingAddress: { name, phone, address, city, pincode },
         whatsappSent: false,
-        orderStatus: "Pending"
+        orderStatus: "pending"
     });
 
     // Clear user cart
-    cart.products = [];
+    cart.items = [];
     await cart.save();
 
     // Create notification for the user
     await createEcommerceNotification(
         userId,
         "order_success",
-        `Your order (ID: ${order._id}) has been placed successfully for a total of ₹${totalPrice.toLocaleString()}.`
+        `Your order (ID: ${order.orderId || order._id}) has been placed successfully for a total of ₹${finalAmount.toLocaleString()}.`
     );
 
     // Invalidate analytics caches
@@ -93,18 +98,19 @@ export const placeOrderService = async (userId, shippingInfo) => {
     // Create WhatsApp message format
     let itemsText = "";
     orderedProducts.forEach((item, idx) => {
-        itemsText += `${idx + 1}. ${item.name} (${item.size}) x${item.quantity} - ₹${(item.price * item.quantity).toLocaleString()}\n`;
+        const itemPrice = item.price - (item.price * item.discount) / 100;
+        itemsText += `${idx + 1}. ${item.name} (${item.size}) x${item.quantity} - ₹${(itemPrice * item.quantity).toLocaleString()}\n`;
     });
 
     const whatsappNo = process.env.WHATSAPP_NO || "9172346386"; // default backup
     const msg = `*🛒 New Order Placed on Saaj Sakhi*\n\n` +
                 `*Order Details:*\n` +
-                `• Order ID: ${order._id}\n` +
+                `• Order ID: ${order.orderId || order._id}\n` +
                 `• Name: ${name}\n` +
                 `• Phone: ${phone}\n` +
                 `• Address: ${address}, ${city} - ${pincode}\n\n` +
                 `*Items Ordered:*\n${itemsText}\n` +
-                `*Total Price:* ₹${totalPrice.toLocaleString()}\n\n` +
+                `*Total Price:* ₹${finalAmount.toLocaleString()}\n\n` +
                 `Please confirm my order. Thank you!`;
 
     const encodedMessage = encodeURIComponent(msg);
@@ -117,7 +123,7 @@ export const placeOrderService = async (userId, shippingInfo) => {
  * Get logged-in user order history
  */
 export const getMyOrdersService = async (userId) => {
-    return await Order.find({ userId })
+    return await Order.find({ user: userId })
         .populate("orderedProducts.product")
         .sort({ createdAt: -1 });
 };
@@ -134,7 +140,7 @@ export const getAllOrdersService = async (queries = {}) => {
     const dbQuery = {};
 
     if (status && status.trim() !== "") {
-        dbQuery.orderStatus = status;
+        dbQuery.orderStatus = status.toLowerCase();
     }
 
     if (search && search.trim() !== "") {
@@ -148,7 +154,7 @@ export const getAllOrdersService = async (queries = {}) => {
 
     const totalOrders = await Order.countDocuments(dbQuery);
     const orders = await Order.find(dbQuery)
-        .populate("userId", "name email")
+        .populate("user", "name email")
         .populate("orderedProducts.product")
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -169,8 +175,9 @@ export const getAllOrdersService = async (queries = {}) => {
  * Update order status (Admin)
  */
 export const updateOrderStatusService = async (orderId, status) => {
-    const validStatuses = ["Pending", "Confirmed", "Processing", "Delivered", "Cancelled"];
-    if (!validStatuses.includes(status)) {
+    const validStatuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
+    const statusLower = status.toLowerCase();
+    if (!validStatuses.includes(statusLower)) {
         throw new ApiError(400, "Invalid status type.");
     }
 
@@ -179,14 +186,14 @@ export const updateOrderStatusService = async (orderId, status) => {
         throw new ApiError(404, "Order not found");
     }
 
-    order.orderStatus = status;
+    order.orderStatus = statusLower;
     await order.save();
 
     // Create user notification
     await createEcommerceNotification(
-        order.userId,
+        order.user,
         "order_status_update",
-        `Your order (ID: ${order._id}) status has been updated to "${status}".`
+        `Your order (ID: ${order.orderId || order._id}) status has been updated to "${statusLower}".`
     );
 
     // Invalidate analytics caches

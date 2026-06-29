@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IoGrid, IoCube, IoBagHandle, IoPeople, IoAdd, IoTrash, IoCreate, IoClose, IoArrowUp, IoBarChart, IoEye, IoTrendingUp } from 'react-icons/io5';
+import { IoGrid, IoCube, IoBagHandle, IoPeople, IoAdd, IoTrash, IoCreate, IoClose, IoArrowUp, IoBarChart, IoEye, IoTrendingUp, IoList } from 'react-icons/io5';
 import toast from 'react-hot-toast';
 import { analyticsApi } from '../../api/analytics.api';
 import { productApi } from '../../api/product.api';
 import { orderApi } from '../../api/order.api';
 import { userApi } from '../../api/user.api';
+import { categoryApi } from '../../api/category.api';
 import { Button, Badge, Modal } from '../../components/ui';
 
 const tabs = [
@@ -14,6 +15,7 @@ const tabs = [
   { id: 'products', label: 'Products', icon: IoCube },
   { id: 'orders', label: 'Orders', icon: IoBagHandle },
   { id: 'customers', label: 'Customers', icon: IoPeople },
+  { id: 'categories', label: 'Categories', icon: IoList },
 ];
 
 const statusOptions = ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled'];
@@ -28,16 +30,24 @@ export default function AdminDashboard() {
   const [productModal, setProductModal] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', price: '', discount: '0', category: 'Men', stock: '10', sizes: ['S', 'M', 'L'] });
+  const [form, setForm] = useState({ name: '', description: '', price: '', discount: '0', category: '', stock: '10', sizes: ['S', 'M', 'L'] });
   const [files, setFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState('');
 
-  const categories = ['Men', 'Women', 'Oversized', 'Streetwear', 'Accessories', 'Shoes'];
   const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
   useEffect(() => {
     fetchData();
   }, [activeTab]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await categoryApi.getAll();
+      if (res.success) setCategories(res.data);
+    })();
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -48,6 +58,9 @@ export default function AdminDashboard() {
       } else if (activeTab === 'products') {
         const res = await productApi.getProducts({ limit: 100 });
         if (res.success) setProducts(res.data.products);
+      } else if (activeTab === 'categories') {
+        const res = await categoryApi.getAll();
+        if (res.success) setCategories(res.data);
       } else if (activeTab === 'orders') {
         const res = await orderApi.getAllOrders();
         if (res.success) setOrders(res.data.orders || []);
@@ -64,7 +77,7 @@ export default function AdminDashboard() {
   const openCreate = () => {
     setEditing(false);
     setEditId(null);
-    setForm({ name: '', description: '', price: '', discount: '0', category: 'Men', stock: '10', sizes: ['S', 'M', 'L'] });
+    setForm({ name: '', description: '', price: '', discount: '0', category: categories[0]?.name || '', stock: '10', sizes: ['S', 'M', 'L'] });
     setFiles([]);
     setProductModal(true);
   };
@@ -74,7 +87,7 @@ export default function AdminDashboard() {
     setEditId(prod._id);
     setForm({
       name: prod.name, description: prod.description, price: prod.price,
-      discount: prod.discount || '0', category: prod.category || 'Men',
+      discount: prod.discount || '0', category: prod.category || categories[0]?.name || '',
       stock: prod.stock, sizes: prod.sizes || [],
     });
     setFiles([]);
@@ -128,9 +141,28 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteUser = async (id) => {
-    if (!window.confirm('Delete this user?')) return;
+    if (!window.confirm('Delete this user permanently?')) return;
     const res = await userApi.adminDeleteUser(id);
     if (res.success) { toast.success('User deleted'); fetchData(); }
+    else toast.error(res.message);
+  };
+
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) { toast.error('Enter a category name'); return; }
+    const res = await categoryApi.create(newCategory.trim());
+    if (res.success) {
+      toast.success('Category added');
+      setNewCategory('');
+      fetchData();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Delete this category?')) return;
+    const res = await categoryApi.delete(id);
+    if (res.success) { toast.success('Category deleted'); fetchData(); }
     else toast.error(res.message);
   };
 
@@ -545,7 +577,7 @@ export default function AdminDashboard() {
                         <td className="p-4 text-right">
                           {c.role !== 'admin' && (
                             <>
-                              <button onClick={() => handleToggleUser(c._id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all mr-2 ${c.isDisabled ? 'border-success/30 text-success hover:bg-success/5' : 'border-warning/30 text-warning hover:bg-warning/5'}`}>
+                              <button onClick={() => handleToggleUser(c._id)} className={c.isDisabled ? "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all mr-2 border-success/30 text-success hover:bg-success/5" : "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all mr-2 border-warning/30 text-warning hover:bg-warning/5"}>
                                 {c.isDisabled ? 'Enable' : 'Disable'}
                               </button>
                               <button onClick={() => handleDeleteUser(c._id)} className="p-2 rounded-lg hover:bg-surface2 text-secondary hover:text-danger transition-all">
@@ -558,6 +590,37 @@ export default function AdminDashboard() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* Categories */}
+            {activeTab === 'categories' && (
+              <div className="max-w-lg space-y-6">
+                <div className="flex items-center gap-3">
+                  <input
+                    value={newCategory}
+                    onChange={e => setNewCategory(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+                    placeholder="New category name..."
+                    className="flex-1 bg-surface2 border border-border rounded-xl px-4 py-2.5 text-sm text-primary placeholder:text-muted focus:outline-none focus:border-accent"
+                  />
+                  <Button onClick={handleAddCategory} size="sm">
+                    <IoAdd size={16} className="mr-1" /> Add
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {categories.map(c => (
+                    <div key={c._id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface2/50 border border-border">
+                      <span className="text-sm font-medium">{c.name}</span>
+                      <button onClick={() => handleDeleteCategory(c._id)} className="p-1.5 rounded-lg hover:bg-danger/10 text-muted hover:text-danger transition-all">
+                        <IoTrash size={15} />
+                      </button>
+                    </div>
+                  ))}
+                  {categories.length === 0 && (
+                    <p className="text-sm text-muted text-center py-8">No categories yet. Add one above.</p>
+                  )}
+                </div>
               </div>
             )}
           </>
@@ -573,9 +636,33 @@ export default function AdminDashboard() {
               <input name="name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-sm text-primary focus:outline-none focus:border-accent" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs text-muted uppercase tracking-wider">Category</label>
+              <div className="flex justify-between items-center">
+                <label className="text-xs text-muted uppercase tracking-wider">Category</label>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const name = prompt("Enter new category name:");
+                    if (name && name.trim()) {
+                      const res = await categoryApi.create(name.trim());
+                      if (res.success) {
+                        toast.success("Category created successfully");
+                        const catRes = await categoryApi.getAll();
+                        if (catRes.success) {
+                          setCategories(catRes.data);
+                          setForm(f => ({ ...f, category: name.trim() }));
+                        }
+                      } else {
+                        toast.error(res.message);
+                      }
+                    }
+                  }}
+                  className="text-xs text-accent hover:underline flex items-center gap-0.5"
+                >
+                  <IoAdd size={12} /> Add Custom
+                </button>
+              </div>
               <select name="category" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-sm text-primary focus:outline-none focus:border-accent">
-                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                {categories.map(c => <option key={c._id || c.name || c} value={c.name || c}>{c.name || c}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">

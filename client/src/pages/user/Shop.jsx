@@ -3,9 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoOptions, IoClose, IoSearch } from 'react-icons/io5';
 import { useShopStore } from '../../store/shopStore';
+import { categoryApi } from '../../api/category.api';
 import { ProductCard, ProductGridSkeleton, ErrorState, EmptyState, Pagination, Button } from '../../components/ui';
-
-const categories = ['Men', 'Women', 'Oversized', 'Streetwear', 'Accessories', 'Shoes'];
 const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
 const sortOptions = [
   { value: '', label: 'Newest' },
@@ -23,6 +22,7 @@ export default function Shop() {
   const [mobileFilters, setMobileFilters] = useState(false);
   const [tempMinPrice, setTempMinPrice] = useState('');
   const [tempMaxPrice, setTempMaxPrice] = useState('');
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const cat = searchParams.get('category');
@@ -31,6 +31,10 @@ export default function Shop() {
     if (cat) setFilters({ category: cat });
     if (search) setFilters({ search });
     if (discount) setFilters({ discount: discount === 'true' });
+    (async () => {
+      const res = await categoryApi.getAll();
+      if (res.success) setCategories(res.data);
+    })();
   }, []);
 
   useEffect(() => {
@@ -89,17 +93,17 @@ export default function Shop() {
       <div>
         <p className="text-xs text-muted uppercase tracking-wider mb-3">Category</p>
         <div className="flex flex-wrap gap-2">
-          {categories.map(cat => (
+          {categories.map(c => (
             <button
-              key={cat}
-              onClick={() => handleCategory(cat)}
+              key={c._id}
+              onClick={() => handleCategory(c.name)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                filters.category === cat
+                filters.category === c.name
                   ? 'accent-gradient text-white border-transparent'
                   : 'bg-surface2 border-border text-secondary hover:border-accent/30'
               }`}
             >
-              {cat}
+              {c.name}
             </button>
           ))}
         </div>

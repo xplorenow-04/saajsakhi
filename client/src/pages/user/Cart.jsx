@@ -55,7 +55,7 @@ export default function Cart() {
   };
 
   const total = getCartTotal();
-  const items = cart?.products || [];
+  const items = cart?.items || [];
   const shippingCost = total > 999 ? 0 : 99;
   const grandTotal = total + shippingCost;
 

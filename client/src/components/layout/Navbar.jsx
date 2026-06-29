@@ -10,8 +10,7 @@ import toast from 'react-hot-toast';
 import CartDrawer from '../cart/CartDrawer';
 
 const navLinks = [
-  { name: 'Men', path: '/shop?category=Men' },
-  { name: 'Women', path: '/shop?category=Women' },
+  { name: 'Home', path: '/' },
   { name: 'New Arrivals', path: '/shop?sort=newest' },
   { name: 'Sale', path: '/shop?discount=true' },
 ];

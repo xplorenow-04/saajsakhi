@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IoClose, IoTrashOutline } from 'react-icons/io5';
+import { IoClose, IoTrashOutline, IoBagOutline } from 'react-icons/io5';
 import toast from 'react-hot-toast';
 import { useShopStore } from '../../store/shopStore';
 import { CartSkeleton } from '../ui/Skeleton';
@@ -32,7 +32,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   };
 
   const total = getCartTotal();
-  const products = cart?.products || [];
+  const products = cart?.items || [];
 
   return (
     <AnimatePresence>

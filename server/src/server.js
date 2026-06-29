@@ -42,6 +42,7 @@ import requestRouter from "./routes/request.route.js"
 import notificationRouter from "./routes/notification.route.js"
 import productRouter from "./routes/product.route.js"
 import cartRouter from "./routes/cart.route.js"
+import categoryRouter from "./routes/category.route.js"
 import orderRouter from "./routes/order.route.js"
 import analyticsRouter from "./routes/analytics.route.js"
 import { errorHandler } from "./middlewares/error.middleware.js"
@@ -58,6 +59,7 @@ app.use("/api/products", productRouter)
 app.use("/api/cart", cartRouter)
 app.use("/api/orders", orderRouter)
 app.use("/api/analytics", analyticsRouter)
+app.use("/api/categories", categoryRouter)
 
 // Centralized error handler
 app.use(errorHandler)

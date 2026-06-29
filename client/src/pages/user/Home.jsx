@@ -15,12 +15,12 @@ import 'swiper/css/pagination';
 gsap.registerPlugin(ScrollTrigger);
 
 const categories = [
-  { name: 'Men', image: 'https://images.unsplash.com/photo-1617137968427-85924d1c5360?w=600&q=80', count: '124 Products' },
-  { name: 'Women', image: 'https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=600&q=80', count: '156 Products' },
-  { name: 'Oversized', image: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&q=80', count: '89 Products' },
-  { name: 'Streetwear', image: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=600&q=80', count: '67 Products' },
-  { name: 'Accessories', image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80', count: '45 Products' },
-  { name: 'Shoes', image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80', count: '34 Products' },
+  { name: 'Dresses', image: 'https://images.unsplash.com/photo-1651335794520-fb1066d93a84?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  { name: 'Traditional', image: 'https://images.unsplash.com/photo-1721069967734-997c5081be3f?q=80&w=2127&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  { name: 'Hoodies', image: 'https://images.unsplash.com/photo-1578172745579-92c2de4f383a?q=80&w=736&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  { name: 'Jackets', image: 'https://images.unsplash.com/photo-1587664289285-e6fb47cbe370?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  { name: 'Bags', image: 'https://images.unsplash.com/photo-1760624294582-5341f33f9fa4?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  
 ];
 
 const features = [
@@ -93,7 +93,8 @@ export default function Home() {
         <motion.div style={{ y: heroY }} className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1920&q=85"
+            // src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1920&q=85"
+            src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Fashion"
             className="w-full h-full object-cover"
           />
