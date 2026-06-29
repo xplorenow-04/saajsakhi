@@ -7,7 +7,7 @@ class CartService {
     async getCart(userId) {
         let cart = await Cart.findOne({ user: userId }).populate({
             path: "items.product",
-            select: "name price discount images sizes isActive"
+            select: "name price discount images sizes isActive slug"
         });
 
         if (!cart) {

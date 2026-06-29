@@ -7,7 +7,6 @@ import {
   Minus,
   Plus,
   AlertTriangle,
-  CreditCard,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useEcommerceStore } from "../../store/useEcommerceStore";
@@ -368,14 +367,6 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                   </div>
 
                   <div className="space-y-2">
-                    <Link
-                      to="/checkout"
-                      className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent/90 text-white font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-accent/20 hover:shadow-accent/30 active:scale-[0.98]"
-                    >
-                      <CreditCard size={18} />
-                      Proceed to Checkout
-                    </Link>
-
                     <button
                       onClick={handleOrderCartViaWhatsApp}
                       className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-semibold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-green-500/20 hover:shadow-green-500/30 active:scale-[0.98]"

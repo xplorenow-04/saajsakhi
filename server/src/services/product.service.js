@@ -1,5 +1,6 @@
 import slugify from "slugify";
 import { Product } from "../models/product.model.js";
+import { Category } from "../models/category.model.js";
 import { redis } from "../redis/config.js";
 import { ApiError } from "../utils/apiUtils.js";
 import { logger } from "../utils/logger.js";
@@ -71,7 +72,14 @@ class ProductService {
 
         const filter = { isActive: true };
 
-        if (category) filter.category = category.toLowerCase();
+        if (category) {
+            const catDoc = await Category.findOne({ slug: category.toLowerCase() }).select("name").lean();
+            if (catDoc) {
+                filter.category = catDoc.name;
+            } else {
+                filter.category = category.toLowerCase();
+            }
+        }
         if (minPrice || maxPrice) {
             filter.price = {};
             if (minPrice) filter.price.$gte = parseFloat(minPrice);
@@ -163,16 +171,19 @@ class ProductService {
 
     async getCategories() {
         try {
-            const cached = await redis.get("categories");
+            const cached = await redis.get("categories:public");
             if (cached) return JSON.parse(cached);
         } catch (e) {
             logger.warn("Redis get failed", { error: e.message });
         }
 
-        const categories = await Product.distinct("category", { isActive: true });
+        const categories = await Category.find({ isActive: true })
+            .select("name slug image")
+            .sort({ name: 1 })
+            .lean();
 
         try {
-            await redis.setex("categories", 3600, JSON.stringify(categories));
+            await redis.setex("categories:public", 3600, JSON.stringify(categories));
         } catch (e) {
             logger.warn("Redis set failed", { error: e.message });
         }

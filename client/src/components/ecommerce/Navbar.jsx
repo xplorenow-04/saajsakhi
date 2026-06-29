@@ -17,14 +17,7 @@ import {
 } from "lucide-react";
 import { useEcommerceStore } from "../../store/useEcommerceStore";
 import { userAuthStore } from "../../store/userStore";
-
-const categories = [
-  { name: "All Products", slug: "all" },
-  { name: "Traditional Wear", slug: "traditional" },
-  { name: "Contemporary", slug: "contemporary" },
-  { name: "Accessories", slug: "accessories" },
-  { name: "Festive Collection", slug: "festive" },
-];
+import { productApi } from "../../api/product.api";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -35,12 +28,13 @@ export default function Navbar() {
   const navigate = useNavigate();
   const user = userAuthStore((s) => s.user);
   const logout = userAuthStore((s) => s.logout);
-  const { cartCount } = useEcommerceStore();
+  const { cartCount, fetchCart } = useEcommerceStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const categoriesRef = useRef(null);
   const profileRef = useRef(null);
@@ -62,6 +56,16 @@ export default function Navbar() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (user) fetchCart();
+  }, [user, fetchCart]);
+
+  useEffect(() => {
+    productApi.getCategories().then((res) => {
+      if (res.success) setCategories(res.data || []);
+    });
   }, []);
 
   const handleSearch = (e) => {

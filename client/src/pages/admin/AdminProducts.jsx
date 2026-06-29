@@ -280,7 +280,7 @@ export default function AdminProducts() {
                     <td className="px-4 py-3">
                       <div className="w-10 h-10 rounded-lg bg-surface-700 overflow-hidden">
                         {product.images?.[0] ? (
-                          <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                          <img src={product.images[0].url} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <ImageIcon size={16} className="text-text-muted" />
@@ -452,7 +452,7 @@ export default function AdminProducts() {
                   >
                     <option value="">Select category</option>
                     {categories.map((c) => (
-                      <option key={c._id} value={c.name.toLowerCase()} className="capitalize">{c.name}</option>
+                      <option key={c._id} value={c.name} className="capitalize">{c.name}</option>
                     ))}
                   </select>
                 </div>

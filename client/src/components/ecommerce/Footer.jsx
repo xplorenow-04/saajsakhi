@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Mail,
@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { productApi } from "../../api/product.api";
 
 const companyLinks = [
   { name: "About Us", path: "/" },
@@ -27,14 +28,6 @@ const helpLinks = [
   { name: "Contact Us", path: "/" },
 ];
 
-const categoryLinks = [
-  { name: "Traditional Wear", slug: "traditional" },
-  { name: "Contemporary", slug: "contemporary" },
-  { name: "Accessories", slug: "accessories" },
-  { name: "Festive Collection", slug: "festive" },
-  { name: "New Arrivals", slug: "new-arrivals" },
-];
-
 const socialLinks = [
   { icon: Facebook, href: "#", label: "Facebook" },
   { icon: Twitter, href: "#", label: "Twitter" },
@@ -44,6 +37,13 @@ const socialLinks = [
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const [categoryLinks, setCategoryLinks] = useState([]);
+
+  useEffect(() => {
+    productApi.getCategories().then((res) => {
+      if (res.success) setCategoryLinks(res.data || []);
+    });
+  }, []);
 
   const handleNewsletter = (e) => {
     e.preventDefault();
