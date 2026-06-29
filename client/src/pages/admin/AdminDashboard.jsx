@@ -11,6 +11,14 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const statCards = [
   { key: "totalUsers", label: "Total Users", icon: Users, color: "from-blue-500 to-blue-600" },
@@ -163,28 +171,52 @@ export default function AdminDashboard() {
           <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600">
             <h2 className="text-base font-semibold text-text-primary mb-4">Orders by Day (Last 7)</h2>
             {ordersByDay.length > 0 ? (
-              <div className="flex items-end gap-2 h-48">
-                {ordersByDay.map((item, i) => {
-                  const max = Math.max(...ordersByDay.map((o) => o.count), 1);
-                  const height = (item.count / max) * 100;
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group">
-                      <span className="text-xs text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                        {item.count}
-                      </span>
-                      <div
-                        className="w-full rounded-lg bg-gradient-to-t from-accent to-accent-light transition-all duration-500 hover:opacity-80"
-                        style={{ height: `${Math.max(height, 4)}%` }}
-                      />
-                      <span className="text-[10px] text-text-muted truncate w-full text-center">
-                        {item.date?.slice(5) ?? `Day ${i + 1}`}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={ordersByDay} barCategoryGap="30%">
+                  <defs>
+                    <linearGradient id="orderGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(v) => v?.slice(5) ?? ""}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#6b7280", fontSize: 11 }}
+                    dy={6}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#6b7280", fontSize: 11 }}
+                    width={28}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "#1e1f2b",
+                      border: "1px solid #2a2d3a",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                    }}
+                    labelStyle={{ color: "#e5e7eb", fontWeight: 600, marginBottom: 4 }}
+                    itemStyle={{ color: "#a1a1aa" }}
+                    formatter={(value) => [`${value} orders`, "Count"]}
+                    labelFormatter={(label) => label?.slice(5) ?? ""}
+                  />
+                  <Bar
+                    dataKey="count"
+                    fill="url(#orderGradient)"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={48}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             ) : (
-              <div className="h-48 flex items-center justify-center text-text-muted text-sm">
+              <div className="h-[200px] flex items-center justify-center text-text-muted text-sm">
                 No order data available
               </div>
             )}
@@ -194,32 +226,58 @@ export default function AdminDashboard() {
         {loading ? <ChartSkeleton /> : (
           <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600">
             <h2 className="text-base font-semibold text-text-primary mb-4">Monthly Revenue</h2>
-            <div className="flex items-end gap-2 h-48">
-              {(() => {
-                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                const now = new Date();
-                const data = stats?.monthlyRevenueData ?? [];
-                const points = Array.from({ length: 12 }, (_, i) => {
-                  const found = data.find((d) => d.month === i + 1);
-                  return found?.revenue ?? 0;
-                });
-                const max = Math.max(...points, 1);
-                return points.map((val, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group">
-                    <span className="text-xs text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                      ₹{val}
-                    </span>
-                    <div
-                      className="w-full rounded-lg bg-gradient-to-t from-emerald-500 to-emerald-400 transition-all duration-500 hover:opacity-80"
-                      style={{ height: `${Math.max((val / max) * 100, 2)}%` }}
-                    />
-                    <span className="text-[10px] text-text-muted truncate w-full text-center">
-                      {months[i]}
-                    </span>
-                  </div>
-                ));
-              })()}
-            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart
+                data={(() => {
+                  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                  const data = stats?.monthlyRevenueData ?? [];
+                  return months.map((name, i) => ({
+                    name,
+                    revenue: data.find((d) => d.month === i + 1)?.revenue ?? 0,
+                  }));
+                })()}
+                barCategoryGap="20%"
+              >
+                <defs>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.25} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  dy={6}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  width={40}
+                  tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "#1e1f2b",
+                    border: "1px solid #2a2d3a",
+                    borderRadius: 8,
+                    fontSize: 12,
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                  }}
+                  labelStyle={{ color: "#e5e7eb", fontWeight: 600, marginBottom: 4 }}
+                  itemStyle={{ color: "#10b981" }}
+                  formatter={(value) => [`₹${Number(value).toLocaleString()}`, "Revenue"]}
+                />
+                <Bar
+                  dataKey="revenue"
+                  fill="url(#revenueGradient)"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={32}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>
