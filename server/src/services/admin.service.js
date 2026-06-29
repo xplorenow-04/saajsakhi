@@ -18,6 +18,9 @@ class AdminService {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const firstDayOfPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const lastDayOfPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
+        const startOfYear = new Date(today.getFullYear(), 0, 1);
 
         const [
             totalUsers,
@@ -25,9 +28,11 @@ class AdminService {
             totalOrders,
             monthlyOrders,
             monthlyRevenue,
+            prevMonthRevenue,
             topProducts,
             dailyOrders,
-            recentOrders
+            recentOrders,
+            monthlyRevenueData
         ] = await Promise.all([
             User.countDocuments(),
             Product.countDocuments({ isActive: true }),
@@ -37,6 +42,15 @@ class AdminService {
                 {
                     $match: {
                         createdAt: { $gte: firstDayOfMonth },
+                        orderStatus: { $ne: "cancelled" }
+                    }
+                },
+                { $group: { _id: null, total: { $sum: "$finalAmount" } } }
+            ]),
+            Order.aggregate([
+                {
+                    $match: {
+                        createdAt: { $gte: firstDayOfPrevMonth, $lte: lastDayOfPrevMonth },
                         orderStatus: { $ne: "cancelled" }
                     }
                 },
@@ -61,15 +75,48 @@ class AdminService {
                 { $sort: { _id: 1 } }
             ]),
             Order.find().sort({ createdAt: -1 }).limit(5)
-                .populate("user", "name email").lean()
+                .populate("user", "name email").lean(),
+            Order.aggregate([
+                {
+                    $match: {
+                        createdAt: { $gte: startOfYear },
+                        orderStatus: { $ne: "cancelled" }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $month: "$createdAt" },
+                        revenue: { $sum: "$finalAmount" }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ])
         ]);
+
+        const currentRevenue = monthlyRevenue[0]?.total || 0;
+        const previousRevenue = prevMonthRevenue[0]?.total || 0;
+
+        const revenueChange = previousRevenue > 0
+            ? Math.round(((currentRevenue - previousRevenue) / previousRevenue) * 100)
+            : currentRevenue > 0 ? 100 : 0;
+
+        const yearMonths = Array.from({ length: 12 }, (_, i) => {
+            const found = monthlyRevenueData.find(d => d._id === i + 1);
+            return { month: i + 1, revenue: found?.revenue || 0 };
+        });
 
         const result = {
             totalUsers,
             totalProducts,
             totalOrders,
             monthlyOrders,
-            monthlyRevenue: monthlyRevenue[0]?.total || 0,
+            monthlyRevenue: currentRevenue,
+            usersChange: 0,
+            productsChange: 0,
+            ordersChange: 0,
+            revenueChange,
+            monthlyRevenueData: yearMonths,
+            ordersByDay: dailyOrders.map(d => ({ date: d._id, count: d.count, revenue: d.revenue })),
             topProducts: topProducts.map(p => ({
                 _id: p._id,
                 name: p.name,
@@ -78,7 +125,6 @@ class AdminService {
                 slug: p.slug,
                 image: p.images?.[0]?.url || ""
             })),
-            dailyOrders,
             recentOrders
         };
 

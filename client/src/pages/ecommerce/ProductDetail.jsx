@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-  Star,
   Minus,
   Plus,
   ShoppingBag,
@@ -15,7 +14,8 @@ import {
   Package,
   Truck,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  X
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { productApi } from "../../api/product.api";
@@ -58,6 +58,7 @@ export default function ProductDetail() {
   const { addToCart } = useEcommerceStore();
 
   const [product, setProduct] = useState(null);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -173,7 +174,6 @@ export default function ProductDetail() {
       ? product.price - (product.price * discount) / 100
       : product.price;
   const sizes = product.sizes || [];
-  const rating = product.rating || 4.5;
   const totalStock = sizes.reduce(
     (sum, s) => sum + (s.quantity ?? s.stock ?? 0),
     0
@@ -291,24 +291,6 @@ export default function ProductDetail() {
                 {product.name}
               </h1>
 
-              {/* Rating */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={
-                        i < Math.round(rating)
-                          ? "text-warning fill-warning"
-                          : "text-text-dim"
-                      }
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-text-muted">{rating}</span>
-              </div>
-
               {/* Price */}
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-accent">
@@ -338,7 +320,7 @@ export default function ProductDetail() {
                     <h3 className="text-sm font-semibold text-text-primary">
                       Select Size
                     </h3>
-                    <button className="flex items-center gap-1.5 text-xs text-accent hover:text-accent-light transition-colors">
+                    <button onClick={() => setSizeGuideOpen(true)} className="flex items-center gap-1.5 text-xs text-accent hover:text-accent-light transition-colors">
                       <Ruler size={14} />
                       Size Guide
                     </button>
@@ -490,6 +472,66 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
+
+      {/* Size Guide Modal */}
+      {sizeGuideOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSizeGuideOpen(false)} />
+          <div className="relative bg-surface-800 border border-surface-600 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-surface-600">
+              <h2 className="text-lg font-semibold text-text-primary">Size Guide</h2>
+              <button onClick={() => setSizeGuideOpen(false)} className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-700 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary mb-3">Women's Clothing</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-surface-600">
+                        <th className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-3 py-2">Size</th>
+                        <th className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-3 py-2">Bust (in)</th>
+                        <th className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-3 py-2">Waist (in)</th>
+                        <th className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-3 py-2">Hips (in)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { size: "XS", bust: "30-32", waist: "24-26", hips: "32-34" },
+                        { size: "S", bust: "32-34", waist: "26-28", hips: "34-36" },
+                        { size: "M", bust: "34-36", waist: "28-30", hips: "36-38" },
+                        { size: "L", bust: "36-38", waist: "30-32", hips: "38-40" },
+                        { size: "XL", bust: "38-41", waist: "32-35", hips: "40-43" },
+                        { size: "XXL", bust: "41-44", waist: "35-38", hips: "43-46" },
+                        { size: "3XL", bust: "44-47", waist: "38-41", hips: "46-49" },
+                      ].map((row) => (
+                        <tr key={row.size} className="border-b border-surface-700/50 hover:bg-surface-700/30">
+                          <td className="px-3 py-2.5 text-text-primary font-medium">{row.size}</td>
+                          <td className="px-3 py-2.5 text-text-secondary">{row.bust}</td>
+                          <td className="px-3 py-2.5 text-text-secondary">{row.waist}</td>
+                          <td className="px-3 py-2.5 text-text-secondary">{row.hips}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="bg-surface-700/50 rounded-xl p-4 space-y-2">
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">How to Measure</h4>
+                <ul className="text-xs text-text-secondary space-y-1.5">
+                  <li><span className="text-text-primary font-medium">Bust:</span> Measure around the fullest part of your bust, keeping the tape horizontal.</li>
+                  <li><span className="text-text-primary font-medium">Waist:</span> Measure around the narrowest part of your natural waist.</li>
+                  <li><span className="text-text-primary font-medium">Hips:</span> Measure around the fullest part of your hips, keeping the tape horizontal.</li>
+                </ul>
+                <p className="text-xs text-text-muted mt-2">If your measurements fall between sizes, we recommend sizing up for a comfortable fit.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

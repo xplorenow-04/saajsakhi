@@ -170,7 +170,7 @@ export const getProductAnalytics = asyncHandler(async (req, res) => {
                 }
             }
         },
-        { $sort: { totalSold: -1 } },
+        { $sort: { viewCount: -1 } },
         { $limit: 20 },
         {
             $project: {

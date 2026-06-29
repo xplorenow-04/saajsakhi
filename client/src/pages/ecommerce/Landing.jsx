@@ -4,7 +4,6 @@ import {
   ArrowRight,
   ChevronRight,
   ChevronLeft,
-  Star,
   Truck,
   ShieldCheck,
   RefreshCw,
