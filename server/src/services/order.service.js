@@ -1,3 +1,4 @@
+import PDFDocument from "pdfkit";
 import { Order } from "../models/order.model.js";
 import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
@@ -333,6 +334,147 @@ class OrderService {
 
         await redisService.set(cacheKey, result, 600);
         return result;
+    }
+
+    async exportOrdersPDF() {
+        const orders = await Order.find()
+            .sort({ createdAt: -1 })
+            .populate("user", "name email")
+            .lean();
+
+        const doc = new PDFDocument({ margin: 40, size: "A4" });
+        const buffers = [];
+
+        doc.on("data", (chunk) => buffers.push(chunk));
+
+        return new Promise((resolve, reject) => {
+            doc.on("end", () => resolve(Buffer.concat(buffers)));
+            doc.on("error", reject);
+
+            const pageWidth = doc.page.width - 80;
+            let y = 40;
+
+            const header = () => {
+                doc.fontSize(22).font("Helvetica-Bold").fillColor("#8B5CF6")
+                    .text("SAAJSAKHEE", 40, y, { align: "center" });
+                y += 28;
+                doc.fontSize(14).font("Helvetica-Bold").fillColor("#1f2937")
+                    .text("Orders Report", 40, y, { align: "center" });
+                y += 18;
+                doc.fontSize(9).font("Helvetica").fillColor("#6b7280")
+                    .text(`Generated: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}`, 40, y, { align: "center" });
+                y += 22;
+            };
+
+            const drawLine = () => {
+                doc.moveTo(40, y).lineTo(40 + pageWidth, y).strokeColor("#e5e7eb").lineWidth(1).stroke();
+                y += 14;
+            };
+
+            const summary = () => {
+                const total = orders.length;
+                const pending = orders.filter(o => o.orderStatus === "pending").length;
+                const confirmed = orders.filter(o => o.orderStatus === "confirmed").length;
+                const delivered = orders.filter(o => o.orderStatus === "delivered").length;
+                const cancelled = orders.filter(o => o.orderStatus === "cancelled").length;
+                const revenue = orders
+                    .filter(o => o.orderStatus !== "cancelled")
+                    .reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+
+                doc.fontSize(10).font("Helvetica-Bold").fillColor("#374151").text("SUMMARY", 40, y);
+                y += 16;
+
+                const boxW = (pageWidth - 24) / 4;
+                const boxes = [
+                    { label: "Total Orders", value: total, color: "#8B5CF6" },
+                    { label: "Total Revenue", value: `₹${revenue.toLocaleString("en-IN")}`, color: "#10B981" },
+                    { label: "Delivered", value: delivered, color: "#10B981" },
+                    { label: "Cancelled", value: cancelled, color: "#EF4444" },
+                ];
+
+                boxes.forEach((b, i) => {
+                    const bx = 40 + i * (boxW + 8);
+                    doc.roundedRect(bx, y, boxW, 44, 6).fillColor("#f9fafb").fill()
+                        .fillColor("#6b7280").fontSize(7).font("Helvetica").text(b.label, bx + 8, y + 6, { width: boxW - 16, align: "center" })
+                        .fillColor(b.color).fontSize(14).font("Helvetica-Bold").text(String(b.value), bx + 8, y + 18, { width: boxW - 16, align: "center" });
+                });
+                y += 58;
+            };
+
+            const drawTableHeader = () => {
+                drawLine();
+                doc.roundedRect(40, y - 4, pageWidth, 22, 4).fillColor("#f3f4f6").fill();
+                const cols = [
+                    { x: 44, w: 70, label: "Order ID" },
+                    { x: 118, w: 90, label: "Customer" },
+                    { x: 212, w: 50, label: "Items" },
+                    { x: 266, w: 60, label: "Total" },
+                    { x: 330, w: 60, label: "Status" },
+                    { x: 394, w: 82, label: "Date" },
+                ];
+                doc.fillColor("#374151").fontSize(8).font("Helvetica-Bold");
+                cols.forEach(c => doc.text(c.label, c.x, y + 2, { width: c.w, align: "left" }));
+                y += 24;
+            };
+
+            header();
+            summary();
+
+            if (orders.length === 0) {
+                doc.fontSize(11).fillColor("#9ca3af").text("No orders found.", 40, y + 20);
+            } else {
+                drawTableHeader();
+
+                orders.forEach((order, idx) => {
+                    if (y > 720) {
+                        doc.addPage();
+                        y = 40;
+                        drawTableHeader();
+                    }
+
+                    const bgColor = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
+                    const rowH = 18;
+                    doc.roundedRect(40, y - 2, pageWidth, rowH + 4, 3).fillColor(bgColor).fill();
+
+                    const customer = order.shippingAddress?.name || order.user?.name || order.guestInfo?.name || "N/A";
+                    const items = order.orderedProducts?.length || 0;
+                    const total = order.finalAmount || 0;
+                    const status = order.orderStatus || "pending";
+                    const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-IN") : "--";
+
+                    doc.fillColor("#1f2937").fontSize(7.5).font("Helvetica");
+                    doc.text((order.orderId || order._id?.slice(-8) || "").toString().slice(-10), 44, y, { width: 70 });
+                    doc.text(customer.length > 18 ? customer.slice(0, 16) + ".." : customer, 118, y, { width: 90 });
+                    doc.text(String(items), 212, y, { width: 50 });
+                    doc.text(`₹${total.toLocaleString("en-IN")}`, 266, y, { width: 60 });
+
+                    const statusColors = { pending: "#F59E0B", confirmed: "#3B82F6", processing: "#8B5CF6", delivered: "#10B981", cancelled: "#EF4444" };
+                    doc.fillColor(statusColors[status] || "#6b7280").font("Helvetica-Bold").text(status.charAt(0).toUpperCase() + status.slice(1), 330, y, { width: 60 });
+                    doc.fillColor("#6b7280").font("Helvetica").text(date, 394, y, { width: 82 });
+
+                    y += rowH + 6;
+
+                    // Render ordered products for this order
+                    if (order.orderedProducts && order.orderedProducts.length > 0) {
+                        doc.fontSize(6.5).font("Helvetica").fillColor("#9ca3af");
+                        const productLines = order.orderedProducts.map(p =>
+                            `${p.name} (${p.size}) x${p.quantity} - ₹${((p.price || 0) * (p.quantity || 1)).toLocaleString("en-IN")}`
+                        );
+                        productLines.forEach((line, li) => {
+                            if (y > 740) {
+                                doc.addPage();
+                                y = 40;
+                            }
+                            doc.fillColor("#9ca3af").text(`  ${line}`, 60, y, { width: pageWidth - 60 });
+                            y += 11;
+                        });
+                        y += 2;
+                    }
+                });
+            }
+
+            doc.end();
+        });
     }
 
     async _processCartItems(cartItems) {

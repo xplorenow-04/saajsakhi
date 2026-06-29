@@ -13,7 +13,8 @@ import {
   Phone,
   Home,
   MapPin,
-  Package
+  Package,
+  FileDown
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
@@ -54,6 +55,14 @@ export default function AdminOrders() {
   const [searchingProducts, setSearchingProducts] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [sizeInputs, setSizeInputs] = useState({});
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportPDF = async () => {
+    setExporting(true);
+    const res = await adminApi.exportOrdersPDF();
+    if (!res.success) toast.error(res.message || "Failed to export PDF");
+    setExporting(false);
+  };
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -195,13 +204,23 @@ export default function AdminOrders() {
           <h1 className="text-2xl font-bold text-text-primary">Orders</h1>
           <p className="text-sm text-text-muted mt-0.5">Manage customer orders</p>
         </div>
-        <button
-          onClick={openManualModal}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white hover:bg-accent/90 transition-all text-sm font-medium shadow-lg shadow-accent/20"
-        >
-          <Plus size={16} />
-          Create Manual Order
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExportPDF}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary hover:bg-surface-600 transition-all text-sm font-medium disabled:opacity-50"
+          >
+            <FileDown size={16} />
+            {exporting ? "Exporting..." : "Export PDF"}
+          </button>
+          <button
+            onClick={openManualModal}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white hover:bg-accent/90 transition-all text-sm font-medium shadow-lg shadow-accent/20"
+          >
+            <Plus size={16} />
+            Create Manual Order
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">

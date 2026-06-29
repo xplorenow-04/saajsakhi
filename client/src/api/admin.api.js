@@ -124,6 +124,27 @@ class AdminApi {
             return { success: false, message: error.response?.data?.message || error.message, error };
         }
     }
+
+    async exportOrdersPDF() {
+        try {
+            const response = await axios.get(`${this.baseUrl}/orders/export-pdf`, {
+                responseType: "blob",
+                withCredentials: true
+            });
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `orders-report-${Date.now()}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.response?.data?.message || error.message, error };
+        }
+    }
 }
 
 export const adminApi = new AdminApi();

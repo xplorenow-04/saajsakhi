@@ -90,7 +90,7 @@ export default function AdminProducts() {
       images: product.images || [],
     });
     setImageFiles([]);
-    setImagePreviews(product.images?.map((url) => ({ url, existing: true })) || []);
+    setImagePreviews(product.images?.map((img) => ({ url: img.url, existing: true })) || []);
     setEditingId(product._id);
     setModalOpen(true);
   };
@@ -212,14 +212,14 @@ export default function AdminProducts() {
           <p className="text-sm text-text-muted mt-0.5">Manage your product catalog</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={handleSeed}
             disabled={seeding}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800 border border-surface-600 text-text-secondary hover:text-text-primary hover:border-surface-500 transition-all text-sm font-medium disabled:opacity-50"
           >
             <Package size={16} className={seeding ? "animate-spin" : ""} />
             {seeding ? "Seeding..." : "Seed Products"}
-          </button>
+          </button> */}
           <button
             onClick={openCreate}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white hover:bg-accent/90 transition-all text-sm font-medium shadow-lg shadow-accent/20"

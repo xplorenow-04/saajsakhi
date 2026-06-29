@@ -12,7 +12,8 @@ import {
     getAnalytics,
     createAdmin,
     getProductAnalytics,
-    seedProducts
+    seedProducts,
+    exportOrdersPDF
 } from "../controllers/admin.controller.js";
 import {
     createProduct,
@@ -33,6 +34,7 @@ router.get("/analytics", getAnalytics);
 router.get("/product-analytics", getProductAnalytics);
 
 router.get("/orders", getOrders);
+router.get("/orders/export-pdf", exportOrdersPDF);
 router.put("/orders/:orderId/status", updateOrderStatus);
 router.delete("/orders/:id", deleteOrder);
 router.post("/orders/manual", createManualOrder);

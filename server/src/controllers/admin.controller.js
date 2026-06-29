@@ -306,3 +306,12 @@ export const seedProducts = asyncHandler(async (req, res) => {
         new ApiResponse(200, { created }, `${created} products seeded successfully`)
     );
 });
+
+export const exportOrdersPDF = asyncHandler(async (req, res) => {
+    const pdfBuffer = await orderService.exportOrdersPDF();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="orders-report-${Date.now()}.pdf"`);
+    res.setHeader("Content-Length", pdfBuffer.length);
+    res.send(pdfBuffer);
+});
