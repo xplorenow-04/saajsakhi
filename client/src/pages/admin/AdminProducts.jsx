@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  Package
+  Package,
+  Star
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
@@ -27,6 +28,7 @@ const emptyProduct = {
   discount: "0",
   sizes: [],
   images: [],
+  isFeatured: false,
 };
 
 export default function AdminProducts() {
@@ -88,6 +90,7 @@ export default function AdminProducts() {
       discount: product.discount?.toString() || "0",
       sizes: product.sizes?.map((s) => ({ size: s.size, stock: s.stock })) || [],
       images: product.images || [],
+      isFeatured: product.isFeatured ?? false,
     });
     setImageFiles([]);
     setImagePreviews(product.images?.map((img) => ({ url: img.url, existing: true })) || []);
@@ -151,6 +154,7 @@ export default function AdminProducts() {
     formData.append("price", form.price);
     formData.append("discount", form.discount);
     formData.append("sizes", JSON.stringify(form.sizes));
+    formData.append("isFeatured", form.isFeatured);
 
     imageFiles.forEach((file) => formData.append("images", file));
 
@@ -264,7 +268,7 @@ export default function AdminProducts() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-600">
-                  {["Image", "Name", "Category", "Price", "Discount", "Stock", "Status", "Actions"].map((h) => (
+                  {["Image", "Name", "Category", "Price", "Discount", "Stock", "Views", "Status", "Featured", "Actions"].map((h) => (
                     <th
                       key={h}
                       className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-4 py-3"
@@ -313,12 +317,22 @@ export default function AdminProducts() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
+                      <span className="text-xs text-text-secondary">{product.viewCount ?? 0}</span>
+                    </td>
+                    <td className="px-4 py-3">
                       <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${product.isActive
                         ? "text-success bg-success/10"
                         : "text-text-muted bg-surface-600"
                         }`}>
                         {product.isActive ? "Active" : "Inactive"}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {product.isFeatured ? (
+                        <Star size={15} className="text-warning fill-warning" />
+                      ) : (
+                        <span className="text-xs text-text-muted">--</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
@@ -480,6 +494,26 @@ export default function AdminProducts() {
                     className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
                     placeholder="0"
                   />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={form.isFeatured}
+                        onChange={(e) => setForm((p) => ({ ...p, isFeatured: e.target.checked }))}
+                        className="sr-only"
+                      />
+                      <div className={`w-10 h-5 rounded-full transition-colors ${form.isFeatured ? "bg-warning" : "bg-surface-600"}`}>
+                        <div className={`w-4 h-4 rounded-full bg-white mt-0.5 shadow transition-transform ${form.isFeatured ? "translate-x-5" : "translate-x-0.5"}`} />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+                      <Star size={14} className={form.isFeatured ? "fill-warning text-warning" : ""} />
+                      Featured Product
+                    </div>
+                  </label>
                 </div>
               </div>
 

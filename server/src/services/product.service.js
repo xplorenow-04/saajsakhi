@@ -161,11 +161,21 @@ class ProductService {
         return { deleted: true };
     }
 
-    async incrementViewCount(productId) {
+    async incrementViewCount(productId, slug) {
         try {
-            await Product.findByIdAndUpdate(productId, { $inc: { viewCount: 1 } });
+            const updated = await Product.findByIdAndUpdate(
+                productId,
+                { $inc: { viewCount: 1 } },
+                { new: true }
+            );
+            await redis.del(`product:${productId}`);
+            if (slug) await redis.del(`product:slug:${slug}`);
+            await redis.del("admin:dashboard");
+            await redis.del("admin:analytics");
+            return updated;
         } catch (e) {
             logger.warn("View count increment failed", { productId, error: e.message });
+            return null;
         }
     }
 
@@ -200,8 +210,8 @@ class ProductService {
             logger.warn("Redis get failed", { error: e.message });
         }
 
-        const products = await Product.find({ isActive: true })
-            .sort({ viewCount: -1, createdAt: -1 })
+        const products = await Product.find({ isActive: true, isFeatured: true })
+            .sort({ createdAt: -1 })
             .limit(8)
             .lean();
 

@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  ChevronRight,
-  ChevronLeft,
   Truck,
   ShieldCheck,
   RefreshCw,
@@ -58,7 +56,6 @@ export default function Landing() {
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newsletterEmail, setNewsletterEmail] = useState("");
-  const featuredScrollRef = useRef(null);
   const [heroLoaded, setHeroLoaded] = useState(false);
   const user = userAuthStore((s) => s.user);
   const isAdmin = user?.role === 'admin';
@@ -90,16 +87,6 @@ export default function Landing() {
     if (newsletterEmail.trim()) {
       toast.success("Subscribed to newsletter!");
       setNewsletterEmail("");
-    }
-  };
-
-  const scrollFeatured = (dir) => {
-    if (featuredScrollRef.current) {
-      const amount = featuredScrollRef.current.clientWidth * 0.8;
-      featuredScrollRef.current.scrollBy({
-        left: dir === "left" ? -amount : amount,
-        behavior: "smooth",
-      });
     }
   };
 
@@ -273,20 +260,6 @@ export default function Landing() {
                   Handpicked styles for the season
                 </p>
               </div>
-              <div className="hidden sm:flex items-center gap-2">
-                <button
-                  onClick={() => scrollFeatured("left")}
-                  className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-700 flex items-center justify-center text-text-muted hover:text-accent hover:border-accent/50 transition-all"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                <button
-                  onClick={() => scrollFeatured("right")}
-                  className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-700 flex items-center justify-center text-text-muted hover:text-accent hover:border-accent/50 transition-all"
-                >
-                  <ChevronRight size={18} />
-                </button>
-              </div>
             </div>
 
             {loading ? (
@@ -294,18 +267,9 @@ export default function Landing() {
                 <LoadingSkeleton type="card" count={4} />
               </div>
             ) : featuredProducts.length > 0 ? (
-              <div
-                ref={featuredScrollRef}
-                className="flex gap-4 lg:gap-6 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 snap-x snap-mandatory scroll-smooth"
-                style={{ scrollbarWidth: "none" }}
-              >
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                 {featuredProducts.map((product) => (
-                  <div
-                    key={product._id}
-                    className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] snap-start"
-                  >
-                    <ProductCard product={product} />
-                  </div>
+                  <ProductCard key={product._id} product={product} />
                 ))}
               </div>
             ) : (

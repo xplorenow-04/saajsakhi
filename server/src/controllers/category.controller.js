@@ -1,14 +1,27 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiUtils.js";
 import { categoryService } from "../services/category.service.js";
+import { uploadFileOnCloudinary } from "../services/cloudinary.service.js";
+import { logger } from "../utils/logger.js";
+import fs from "fs";
 
 export const createCategory = asyncHandler(async (req, res) => {
-    const { name, description, image } = req.body;
+    const { name, description } = req.body;
 
     if (!name || name.trim() === "") {
         return res.status(400).json(
             new ApiResponse(400, null, "Category name is required")
         );
+    }
+
+    let image = { url: "", publicId: "" };
+    if (req.file) {
+        const result = await uploadFileOnCloudinary(req.file.path, "image");
+        if (result?.success) {
+            image = { url: result.secure_url, publicId: result.public_id };
+        } else {
+            logger.warn("Category image upload failed");
+        }
     }
 
     const category = await categoryService.createCategory(
@@ -50,7 +63,15 @@ export const getCategoryBySlug = asyncHandler(async (req, res) => {
 
 export const updateCategory = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name, description, image, isActive } = req.body;
+    const { name, description, isActive } = req.body;
+
+    let image;
+    if (req.file) {
+        const result = await uploadFileOnCloudinary(req.file.path, "image");
+        if (result?.success) {
+            image = { url: result.secure_url, publicId: result.public_id };
+        }
+    }
 
     const category = await categoryService.updateCategory(id, { name, description, image, isActive });
 

@@ -52,6 +52,13 @@ function parseProductData(body) {
             data.isActive = Boolean(data.isActive);
         }
     }
+    if (data.isFeatured !== undefined) {
+        if (typeof data.isFeatured === "string") {
+            data.isFeatured = data.isFeatured === "true";
+        } else {
+            data.isFeatured = Boolean(data.isFeatured);
+        }
+    }
     return data;
 }
 
@@ -143,10 +150,10 @@ export const getProduct = asyncHandler(async (req, res) => {
     }
 
     const product = await productService.getProductBySlug(slug);
-    await productService.incrementViewCount(product._id);
+    const updated = await productService.incrementViewCount(product._id, slug);
 
     return res.status(200).json(
-        new ApiResponse(200, product, "Product fetched successfully")
+        new ApiResponse(200, updated || product, "Product fetched successfully")
     );
 });
 

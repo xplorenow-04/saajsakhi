@@ -62,6 +62,10 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
     viewCount: {
         type: Number,
         default: 0

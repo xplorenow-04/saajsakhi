@@ -281,37 +281,46 @@ export default function AdminDashboard() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 rounded-lg bg-surface-700 animate-pulse" />
+                <div key={i} className="h-16 rounded-lg bg-surface-700 animate-pulse" />
               ))}
             </div>
           ) : topProducts.length > 0 ? (
-            <div className="space-y-2">
-              {topProducts.slice(0, 5).map((product, idx) => (
-                <div
-                  key={product._id || idx}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-700/50 hover:bg-surface-700 transition-colors"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-surface-600 flex items-center justify-center overflow-hidden shrink-0">
-                    {product.images?.[0] ? (
-                      <img
-                        src={product.images[0]}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Eye size={16} className="text-text-muted" />
-                    )}
+            <div className="max-h-80 overflow-y-auto custom-scrollbar">
+              <style>{`
+                .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #2a2d3a transparent; }
+                .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3a3d4a; }
+              `}</style>
+              <div className="space-y-2 pr-1">
+                {topProducts.map((product, idx) => (
+                  <div
+                    key={product._id || idx}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-700/50 hover:bg-surface-700 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-surface-600 flex items-center justify-center overflow-hidden shrink-0">
+                      {product.images?.[0]?.url ? (
+                        <img
+                          src={product.images[0].url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Eye size={16} className="text-text-muted" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-text-primary truncate">
+                        {product.name}
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        ₹{product.price?.toFixed(2)} &middot; {product.viewCount ?? 0} views
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-text-primary truncate">
-                      {product.name}
-                    </p>
-                    <p className="text-xs text-text-muted">
-                      ₹{product.price?.toFixed(2)} &middot; {product.viewCount ?? 0} views
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <div className="text-center py-8 text-text-muted text-sm">

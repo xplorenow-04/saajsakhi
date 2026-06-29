@@ -4,6 +4,7 @@ import { adminService } from "../services/admin.service.js";
 import { orderService } from "../services/order.service.js";
 import { productService } from "../services/product.service.js";
 import { User } from "../models/user.model.js";
+import { Product } from "../models/product.model.js";
 import { Order } from "../models/order.model.js";
 import { redis } from "../redis/config.js";
 import { logger } from "../utils/logger.js";
@@ -133,58 +134,11 @@ export const createAdmin = asyncHandler(async (req, res) => {
 });
 
 export const getProductAnalytics = asyncHandler(async (req, res) => {
-    const products = await Product.aggregate([
-        { $match: { isActive: true } },
-        {
-            $lookup: {
-                from: "orders",
-                localField: "_id",
-                foreignField: "orderedProducts.product",
-                as: "orderData"
-            }
-        },
-        {
-            $addFields: {
-                totalSold: {
-                    $sum: {
-                        $map: {
-                            input: "$orderData",
-                            as: "order",
-                            in: {
-                                $sum: {
-                                    $map: {
-                                        input: {
-                                            $filter: {
-                                                input: "$$order.orderedProducts",
-                                                as: "op",
-                                                cond: { $eq: ["$$op.product", "$_id"] }
-                                            }
-                                        },
-                                        as: "item",
-                                        in: "$$item.quantity"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        { $sort: { viewCount: -1 } },
-        { $limit: 20 },
-        {
-            $project: {
-                name: 1,
-                price: 1,
-                discount: 1,
-                category: 1,
-                viewCount: 1,
-                totalSold: 1,
-                images: { $slice: ["$images", 1] },
-                slug: 1
-            }
-        }
-    ]);
+    const products = await Product.find({ isActive: true })
+        .sort({ viewCount: -1 })
+        .limit(20)
+        .select("name price discount category viewCount images slug")
+        .lean();
 
     return res.status(200).json(
         new ApiResponse(200, products, "Product analytics fetched successfully")

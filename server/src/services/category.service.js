@@ -1,6 +1,7 @@
 import { Category } from "../models/category.model.js";
 import { redisService } from "./redis.service.js";
 import { ApiError } from "../utils/apiUtils.js";
+import { deleteFileFromCloudinary } from "./cloudinary.service.js";
 import { logger } from "../utils/logger.js";
 
 const CACHE_TTL = 600;
@@ -17,7 +18,7 @@ class CategoryService {
         const category = await Category.create({
             name: data.name.trim(),
             description: (data.description || "").trim(),
-            image: data.image || "",
+            image: data.image || { url: "", publicId: "" },
             createdBy: userId
         });
 
@@ -80,7 +81,14 @@ class CategoryService {
 
         if (data.name) category.name = data.name.trim();
         if (data.description !== undefined) category.description = data.description.trim();
-        if (data.image !== undefined) category.image = data.image;
+        if (data.image !== undefined) {
+            if (category.image?.publicId) {
+                deleteFileFromCloudinary(category.image.publicId).catch(e =>
+                    logger.warn("Cloudinary delete failed", { publicId: category.image.publicId, error: e.message })
+                );
+            }
+            category.image = data.image;
+        }
         if (data.isActive !== undefined) category.isActive = data.isActive;
 
         await category.save();
@@ -93,6 +101,12 @@ class CategoryService {
     async deleteCategory(id) {
         const category = await Category.findById(id);
         if (!category) throw new ApiError(404, "Category not found");
+
+        if (category.image?.publicId) {
+            deleteFileFromCloudinary(category.image.publicId).catch(e =>
+                logger.warn("Cloudinary delete failed", { publicId: category.image.publicId, error: e.message })
+            );
+        }
 
         await Category.findByIdAndDelete(id);
 

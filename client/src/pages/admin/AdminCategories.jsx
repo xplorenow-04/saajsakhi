@@ -5,7 +5,8 @@ import {
   Trash2,
   X,
   Loader2,
-  Search
+  Search,
+  Image
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useManageCategories } from "../../hooks/useCategories";
@@ -16,6 +17,8 @@ export default function AdminCategories() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "" });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -29,6 +32,8 @@ export default function AdminCategories() {
 
   const resetForm = () => {
     setForm({ name: "", description: "" });
+    setImageFile(null);
+    setImagePreview(null);
     setEditingId(null);
   };
 
@@ -39,8 +44,18 @@ export default function AdminCategories() {
 
   const openEdit = (category) => {
     setForm({ name: category.name, description: category.description || "" });
+    setImagePreview(category.image?.url || null);
+    setImageFile(null);
     setEditingId(category._id);
     setModalOpen(true);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -51,9 +66,10 @@ export default function AdminCategories() {
     }
     setSubmitting(true);
 
+    const payload = { ...form, imageFile };
     const res = editingId
-      ? await updateCategory(editingId, form)
-      : await createCategory(form);
+      ? await updateCategory(editingId, payload)
+      : await createCategory(payload);
 
     if (res.success) {
       toast.success(editingId ? "Category updated" : "Category created");
@@ -124,7 +140,7 @@ export default function AdminCategories() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-600">
-                  {["Name", "Slug", "Description", "Status", "Actions"].map((h) => (
+                  {["Image", "Name", "Slug", "Description", "Status", "Actions"].map((h) => (
                     <th
                       key={h}
                       className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-4 py-3"
@@ -137,6 +153,15 @@ export default function AdminCategories() {
               <tbody>
                 {filtered.map((category) => (
                   <tr key={category._id} className="border-b border-surface-700/50 hover:bg-surface-700/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="w-10 h-10 rounded-lg bg-surface-700 flex items-center justify-center overflow-hidden">
+                        {category.image?.url ? (
+                          <img src={category.image.url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Image size={16} className="text-text-muted" />
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <p className="text-sm font-medium text-text-primary">{category.name}</p>
                     </td>
@@ -243,6 +268,23 @@ export default function AdminCategories() {
                   className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all resize-none"
                   placeholder="Category description"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1.5">Image (optional)</label>
+                <label className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-700 border border-surface-600 border-dashed cursor-pointer hover:border-accent/50 transition-colors">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-surface-600 flex items-center justify-center">
+                      <Image size={16} className="text-text-muted" />
+                    </div>
+                  )}
+                  <span className="text-sm text-text-muted">
+                    {imagePreview ? "Change image" : "Upload image"}
+                  </span>
+                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                </label>
               </div>
 
               <div className="flex gap-3 pt-2">

@@ -24,7 +24,14 @@ export function useManageCategories() {
     const createCategory = useCallback(async (categoryData) => {
         setLoading(true);
         try {
-            const { data } = await axios.post(BASE_URL, categoryData, { withCredentials: true });
+            const fd = new FormData();
+            fd.append("name", categoryData.name);
+            fd.append("description", categoryData.description || "");
+            if (categoryData.imageFile) fd.append("image", categoryData.imageFile);
+            const { data } = await axios.post(BASE_URL, fd, {
+                withCredentials: true,
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             if (data.success) {
                 setCategories(prev => [...prev, data.data]);
                 return { success: true, data: data.data };
@@ -41,7 +48,14 @@ export function useManageCategories() {
     const updateCategory = useCallback(async (id, categoryData) => {
         setLoading(true);
         try {
-            const { data } = await axios.put(`${BASE_URL}/${id}`, categoryData, { withCredentials: true });
+            const fd = new FormData();
+            fd.append("name", categoryData.name);
+            fd.append("description", categoryData.description || "");
+            if (categoryData.imageFile) fd.append("image", categoryData.imageFile);
+            const { data } = await axios.put(`${BASE_URL}/${id}`, fd, {
+                withCredentials: true,
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             if (data.success) {
                 setCategories(prev => prev.map(c => c._id === id ? data.data : c));
                 return { success: true, data: data.data };
