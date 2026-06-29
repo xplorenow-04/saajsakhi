@@ -36,8 +36,19 @@ const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
         index: true
+    },
+    isGuestOrder: {
+        type: Boolean,
+        default: false
+    },
+    guestInfo: {
+        name: { type: String },
+        phone: { type: String },
+        address: { type: String },
+        city: { type: String },
+        state: { type: String },
+        pincode: { type: String }
     },
     orderedProducts: [orderedProductSchema],
     totalPrice: {
@@ -69,10 +80,6 @@ const orderSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    paymentMethod: {
-        type: String,
-        default: "cod"
-    },
     orderId: {
         type: String,
         unique: true
@@ -81,14 +88,14 @@ const orderSchema = new mongoose.Schema({
 
 orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ orderStatus: 1, createdAt: -1 });
+orderSchema.index({ isGuestOrder: 1, createdAt: -1 });
 
-orderSchema.pre("save", function (next) {
+orderSchema.pre("save", async function () {
     if (!this.orderId) {
         const timestamp = Date.now().toString(36).toUpperCase();
         const random = Math.random().toString(36).substring(2, 6).toUpperCase();
         this.orderId = `ORD-${timestamp}-${random}`;
     }
-    next();
 });
 
 export const Order = mongoose.model("Order", orderSchema);

@@ -7,12 +7,9 @@ import {
   MapPin,
   Phone,
   User,
-  Mail,
   Home,
   Loader2,
-  ExternalLink,
-  X,
-  CreditCard,
+  ExternalLink
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { orderApi } from "../../api/order.api";
@@ -86,15 +83,20 @@ export default function CheckoutPage() {
     setPlacing(true);
     try {
       const res = await orderApi.placeOrder({
-        name: form.name.trim(),
-        phone: form.phone.trim(),
-        address: form.address.trim(),
-        city: form.city.trim(),
-        pincode: form.pincode.trim(),
+        shippingAddress: {
+          name: form.name.trim(),
+          phone: form.phone.trim(),
+          address: form.address.trim(),
+          city: form.city.trim(),
+          pincode: form.pincode.trim(),
+        }
       });
       if (res.success) {
         setOrderSuccess(res.data);
         toast.success("Order placed successfully!");
+        if (res.data.whatsappUrl) {
+          window.open(res.data.whatsappUrl, "_blank");
+        }
       } else {
         toast.error(res.message || "Failed to place order");
       }
@@ -103,16 +105,6 @@ export default function CheckoutPage() {
     } finally {
       setPlacing(false);
     }
-  };
-
-  const getWhatsAppLink = () => {
-    if (!orderSuccess) return "#";
-    const orderId = orderSuccess._id || orderSuccess.orderId || "";
-    const phone = "919876543210";
-    const message = encodeURIComponent(
-      `Hi! I just placed an order (ID: ${orderId}) on SAAJSAKHEE. Please provide the order details.`
-    );
-    return `https://wa.me/${phone}?text=${message}`;
   };
 
   if (cartLoading) {
@@ -149,8 +141,8 @@ export default function CheckoutPage() {
     return null;
   }
 
-  // Success Modal
   if (orderSuccess) {
+    const order = orderSuccess.order || orderSuccess;
     return (
       <div className="min-h-screen bg-surface-900">
         <Navbar />
@@ -163,14 +155,14 @@ export default function CheckoutPage() {
               Order Placed Successfully!
             </h2>
             <p className="text-text-muted text-sm mb-6">
-              Thank you for your order. We'll send you a confirmation shortly.
+              Thank you for your order. Your order has been placed and we will contact you shortly.
             </p>
 
             <div className="bg-surface-800 border border-surface-700/50 rounded-2xl p-6 mb-8 text-left space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-text-muted">Order ID</span>
                 <span className="text-text-primary font-medium">
-                  {orderSuccess._id || orderSuccess.orderId || "N/A"}
+                  {order.orderId || "N/A"}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -185,25 +177,9 @@ export default function CheckoutPage() {
                   {formatPrice(total)}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Delivery Address</span>
-                <span className="text-text-primary font-medium text-right max-w-[200px]">
-                  {form.address}, {form.city} - {form.pincode}
-                </span>
-              </div>
             </div>
 
-            <a
-              href={getWhatsAppLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-success hover:bg-success/90 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-success/20 hover:shadow-success/30 active:scale-[0.98] mb-4"
-            >
-              <ExternalLink size={18} />
-              Chat on WhatsApp
-            </a>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/orders"
                 className="text-sm font-medium text-accent hover:text-accent-light transition-colors"
@@ -230,7 +206,6 @@ export default function CheckoutPage() {
 
       <main className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
               Checkout
@@ -241,7 +216,6 @@ export default function CheckoutPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10">
-            {/* Shipping Form */}
             <div className="lg:col-span-3">
               <form onSubmit={handlePlaceOrder}>
                 <div className="bg-surface-800 border border-surface-700/50 rounded-2xl p-6 sm:p-8 space-y-6">
@@ -250,46 +224,35 @@ export default function CheckoutPage() {
                     Shipping Address
                   </h2>
 
-                  {/* Full Name */}
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-1.5">
                       Full Name
                     </label>
                     <div className="relative">
-                      <User
-                        size={16}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                      />
+                      <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
                       <input
                         type="text"
-                        name="fullName"
-                        value={form.fullName}
+                        name="name"
+                        value={form.name}
                         onChange={handleChange}
                         placeholder="John Doe"
-                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${
-                          errors.name
-                            ? "border-danger focus:border-danger focus:ring-danger/30"
-                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
-                        }`}
+                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.name
+                          ? "border-danger focus:border-danger focus:ring-danger/30"
+                          : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                          }`}
                       />
                     </div>
                     {errors.name && (
-                      <p className="text-xs text-danger mt-1">
-                        {errors.name}
-                      </p>
+                      <p className="text-xs text-danger mt-1">{errors.name}</p>
                     )}
                   </div>
 
-                  {/* Phone */}
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-1.5">
                       Phone Number
                     </label>
                     <div className="relative">
-                      <Phone
-                        size={16}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                      />
+                      <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
                       <input
                         type="tel"
                         name="phone"
@@ -297,78 +260,61 @@ export default function CheckoutPage() {
                         onChange={handleChange}
                         placeholder="9876543210"
                         maxLength={10}
-                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${
-                          errors.phone
-                            ? "border-danger focus:border-danger focus:ring-danger/30"
-                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
-                        }`}
+                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.phone
+                          ? "border-danger focus:border-danger focus:ring-danger/30"
+                          : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                          }`}
                       />
                     </div>
                     {errors.phone && (
-                      <p className="text-xs text-danger mt-1">
-                        {errors.phone}
-                      </p>
+                      <p className="text-xs text-danger mt-1">{errors.phone}</p>
                     )}
                   </div>
 
-                  {/* Address */}
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-1.5">
                       Address
                     </label>
                     <div className="relative">
-                      <Home
-                        size={16}
-                        className="absolute left-3.5 top-3.5 text-text-muted"
-                      />
+                      <Home size={16} className="absolute left-3.5 top-3.5 text-text-muted" />
                       <textarea
                         name="address"
                         value={form.address}
                         onChange={handleChange}
                         placeholder="Street, building, area..."
                         rows={3}
-                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all resize-none ${
-                          errors.address
-                            ? "border-danger focus:border-danger focus:ring-danger/30"
-                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
-                        }`}
+                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all resize-none ${errors.address
+                          ? "border-danger focus:border-danger focus:ring-danger/30"
+                          : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                          }`}
                       />
                     </div>
                     {errors.address && (
-                      <p className="text-xs text-danger mt-1">
-                        {errors.address}
-                      </p>
+                      <p className="text-xs text-danger mt-1">{errors.address}</p>
                     )}
                   </div>
 
-                  {/* City + Pincode */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-text-secondary mb-1.5">
                         City
                       </label>
                       <div className="relative">
-                        <MapPin
-                          size={16}
-                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                        />
+                        <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
                         <input
                           type="text"
                           name="city"
                           value={form.city}
                           onChange={handleChange}
                           placeholder="Mumbai"
-                          className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${
-                            errors.city
-                              ? "border-danger focus:border-danger focus:ring-danger/30"
-                              : "border-surface-600 focus:border-accent focus:ring-accent/30"
-                          }`}
+                          className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.city
+                            ? "border-danger focus:border-danger focus:ring-danger/30"
+                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                            }`}
                         />
                       </div>
                       {errors.city && (
-                        <p className="text-xs text-danger mt-1">
-                          {errors.city}
-                        </p>
+                        <p className="text-xs text-danger mt-1">{errors.city}</p>
                       )}
                     </div>
                     <div>
@@ -376,10 +322,6 @@ export default function CheckoutPage() {
                         Pincode
                       </label>
                       <div className="relative">
-                        <Mail
-                          size={16}
-                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                        />
                         <input
                           type="text"
                           name="pincode"
@@ -387,23 +329,19 @@ export default function CheckoutPage() {
                           onChange={handleChange}
                           placeholder="400001"
                           maxLength={6}
-                          className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${
-                            errors.pincode
-                              ? "border-danger focus:border-danger focus:ring-danger/30"
-                              : "border-surface-600 focus:border-accent focus:ring-accent/30"
-                          }`}
+                          className={`w-full bg-surface-700 border rounded-xl pl-4 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.pincode
+                            ? "border-danger focus:border-danger focus:ring-danger/30"
+                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                            }`}
                         />
                       </div>
                       {errors.pincode && (
-                        <p className="text-xs text-danger mt-1">
-                          {errors.pincode}
-                        </p>
+                        <p className="text-xs text-danger mt-1">{errors.pincode}</p>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Place Order Button */}
                 <button
                   type="submit"
                   disabled={placing}
@@ -411,15 +349,12 @@ export default function CheckoutPage() {
                 >
                   {placing ? (
                     <Loader2 size={20} className="animate-spin" />
-                  ) : (
-                    <CreditCard size={20} />
-                  )}
+                  ) : null}
                   {placing ? "Placing Order..." : `Place Order - ${formatPrice(total)}`}
                 </button>
               </form>
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-2">
               <div className="sticky top-28 bg-surface-800 border border-surface-700/50 rounded-2xl p-6 space-y-5">
                 <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
@@ -427,7 +362,6 @@ export default function CheckoutPage() {
                   Order Summary
                 </h3>
 
-                {/* Items */}
                 <div className="space-y-3 max-h-[300px] overflow-y-auto">
                   {items.map((item) => {
                     const product = item.product || item;
@@ -443,18 +377,13 @@ export default function CheckoutPage() {
                       fallbackImage;
 
                     return (
-                      <div
-                        key={item._id}
-                        className="flex items-center gap-3"
-                      >
+                      <div key={item._id} className="flex items-center gap-3">
                         <div className="w-14 h-16 rounded-lg overflow-hidden bg-surface-700 shrink-0">
                           <img
                             src={imageUrl}
                             alt={product.name}
                             className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.src = fallbackImage;
-                            }}
+                            onError={(e) => { e.target.src = fallbackImage; }}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -476,46 +405,34 @@ export default function CheckoutPage() {
 
                 <div className="h-px bg-surface-700" />
 
-                {/* Totals */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-text-muted">Subtotal</span>
-                    <span className="text-text-secondary">
-                      {formatPrice(subtotal)}
-                    </span>
+                    <span className="text-text-secondary">{formatPrice(subtotal)}</span>
                   </div>
                   {totalDiscount > 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-text-muted">Discount</span>
-                      <span className="text-success">
-                        -{formatPrice(totalDiscount)}
-                      </span>
+                      <span className="text-success">-{formatPrice(totalDiscount)}</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-text-muted">Delivery</span>
-                    <span
-                      className={
-                        deliveryCharge === 0
-                          ? "text-success"
-                          : "text-text-secondary"
-                      }
-                    >
-                      {deliveryCharge === 0
-                        ? "Free"
-                        : formatPrice(deliveryCharge)}
+                    <span className={deliveryCharge === 0 ? "text-success" : "text-text-secondary"}>
+                      {deliveryCharge === 0 ? "Free" : formatPrice(deliveryCharge)}
                     </span>
                   </div>
+                  {deliveryCharge > 0 && (
+                    <p className="text-xs text-text-muted">
+                      Free delivery on orders above <span className="text-text-secondary">Rs.999</span>
+                    </p>
+                  )}
 
                   <div className="h-px bg-surface-700" />
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-text-primary">
-                      Total
-                    </span>
-                    <span className="text-lg font-bold text-accent">
-                      {formatPrice(total)}
-                    </span>
+                    <span className="text-sm font-semibold text-text-primary">Total</span>
+                    <span className="text-lg font-bold text-accent">{formatPrice(total)}</span>
                   </div>
                 </div>
               </div>

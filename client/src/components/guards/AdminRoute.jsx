@@ -3,13 +3,6 @@ import { Navigate } from 'react-router-dom'
 import { userAuthStore } from '../../store/userStore'
 import { authContext } from '../../context/AuthProvider'
 
-/**
- * AdminRoute – wraps admin-only pages.
- *  - While session is loading → show spinner
- *  - Not logged in → redirect to /admin/login
- *  - Logged in but NOT admin → redirect to / (access denied)
- *  - Logged in AND admin → render children
- */
 function AdminRoute({ children }) {
     const { user } = userAuthStore()
     const { isLoading } = useContext(authContext)
@@ -23,7 +16,7 @@ function AdminRoute({ children }) {
     }
 
     if (!user) {
-        return <Navigate to="/admin/login" replace />
+        return <Navigate to="/login" replace />
     }
 
     if (user.role !== 'admin') {

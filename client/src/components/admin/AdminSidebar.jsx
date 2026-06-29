@@ -1,16 +1,14 @@
-import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
   Users,
-  BarChart3,
   Store,
   LogOut,
   ChevronLeft,
-  Menu,
   X,
+  Tags
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { userApi } from "../../api/user.api";
@@ -19,9 +17,9 @@ import { userAuthStore } from "../../store/userStore";
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "Products", path: "/admin/products", icon: Package },
+  { name: "Categories", path: "/admin/categories", icon: Tags },
   { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
   { name: "Users", path: "/admin/users", icon: Users },
-
 ];
 
 export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
@@ -32,11 +30,9 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
     const res = await userApi.logoutUser();
     if (res.success) {
       userAuthStore.getState().logout();
-      toast.success("Logged out");
-      navigate("/login");
-    } else {
-      toast.error(res.message);
     }
+    toast.success("Logged out");
+    navigate("/login");
   };
 
   const sidebarContent = (

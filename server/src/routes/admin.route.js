@@ -20,7 +20,7 @@ import {
     updateProduct,
     deleteProduct
 } from "../controllers/product.controller.js";
-import { createProductSchema } from "../validators/ecommerce.validator.js";
+import { createManualOrder } from "../controllers/order.controller.js";
 
 const router = Router();
 
@@ -35,12 +35,16 @@ router.get("/product-analytics", getProductAnalytics);
 router.get("/orders", getOrders);
 router.put("/orders/:orderId/status", updateOrderStatus);
 router.delete("/orders/:id", deleteOrder);
+router.post("/orders/manual", createManualOrder);
 
 router.get("/users", getUsers);
 router.put("/users/:id/toggle-status", toggleUserStatus);
 router.delete("/users/:id", deleteUser);
 
 router.get("/products", listProducts);
+router.post("/products", upload.array("images", 5), createProduct);
+router.put("/products/:id", upload.array("images", 5), updateProduct);
+router.delete("/products/:id", deleteProduct);
 
 router.post("/seed", seedProducts);
 

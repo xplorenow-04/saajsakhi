@@ -8,8 +8,7 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
-  MapPin,
-  CreditCard,
+  MapPin
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { orderApi } from "../../api/order.api";
@@ -31,7 +30,7 @@ const fallbackImage =
 const statusConfig = {
   pending: { label: "Pending", color: "text-warning bg-warning/10 border-warning/20" },
   confirmed: { label: "Confirmed", color: "text-accent bg-accent/10 border-accent/20" },
-  shipped: { label: "Shipped", color: "text-accent bg-accent/10 border-accent/20" },
+  processing: { label: "Processing", color: "text-accent bg-accent/10 border-accent/20" },
   delivered: { label: "Delivered", color: "text-success bg-success/10 border-success/20" },
   cancelled: { label: "Cancelled", color: "text-danger bg-danger/10 border-danger/20" },
 };
@@ -63,15 +62,9 @@ export default function OrdersPage() {
       const res = await orderApi.getOrders({ page: pageNum, limit: 10 });
       if (res.success) {
         const data = res.data;
-        if (Array.isArray(data)) {
-          setOrders(data);
-          setTotalPages(1);
-          setTotalOrders(data.length);
-        } else {
-          setOrders(data.orders || []);
-          setTotalPages(data.totalPages || 1);
-          setTotalOrders(data.total || 0);
-        }
+        setOrders(data.orders || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalOrders(data.pagination?.total || 0);
       } else {
         toast.error(res.message || "Failed to load orders");
       }
@@ -95,8 +88,8 @@ export default function OrdersPage() {
         toast.success("Order cancelled");
         setOrders((prev) =>
           prev.map((o) =>
-            (o._id || o.orderId) === orderId
-              ? { ...o, status: "cancelled" }
+            o.orderId === orderId
+              ? { ...o, orderStatus: "cancelled" }
               : o
           )
         );
@@ -116,7 +109,6 @@ export default function OrdersPage() {
 
       <main className="pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
               My Orders
@@ -144,22 +136,18 @@ export default function OrdersPage() {
             <>
               <div className="space-y-4">
                 {orders.map((order) => {
-                  const orderId = order._id || order.orderId;
+                  const orderId = order.orderId || order._id;
                   const isExpanded = expandedOrder === orderId;
-                  const items = order.items || [];
-                  const totalAmount =
-                    order.totalAmount || order.total || 0;
-                  const status =
-                    (order.status || "pending").toLowerCase();
-                  const statusStyling =
-                    statusConfig[status] || statusConfig.pending;
+                  const items = order.orderedProducts || [];
+                  const totalAmount = order.finalAmount || 0;
+                  const status = (order.orderStatus || "pending").toLowerCase();
+                  const statusStyling = statusConfig[status] || statusConfig.pending;
 
                   return (
                     <div
                       key={orderId}
                       className="bg-surface-800 border border-surface-700/50 rounded-2xl overflow-hidden transition-all duration-300"
                     >
-                      {/* Order Header */}
                       <div
                         onClick={() =>
                           setExpandedOrder(isExpanded ? null : orderId)
@@ -167,21 +155,17 @@ export default function OrdersPage() {
                         className="p-4 sm:p-6 cursor-pointer hover:bg-surface-700/30 transition-colors"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                          {/* Order Icon */}
                           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
                             <Package size={20} className="text-accent" />
                           </div>
 
-                          {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                               <p className="text-sm font-medium text-text-primary truncate">
                                 Order #{orderId?.slice(-8).toUpperCase()}
                               </p>
                               <span
-                                className={`inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full border ${
-                                  statusStyling.color
-                                } w-fit`}
+                                className={`inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full border ${statusStyling.color} w-fit`}
                               >
                                 {statusStyling.label}
                               </span>
@@ -200,7 +184,6 @@ export default function OrdersPage() {
                             </div>
                           </div>
 
-                          {/* Expand Icon */}
                           <button className="text-text-muted hover:text-accent transition-colors">
                             {isExpanded ? (
                               <ChevronUp size={20} />
@@ -211,23 +194,15 @@ export default function OrdersPage() {
                         </div>
                       </div>
 
-                      {/* Expanded Details */}
                       {isExpanded && (
                         <div className="border-t border-surface-700/50 animate-slide-down">
                           <div className="p-4 sm:p-6 space-y-5">
-                            {/* Items */}
                             <div className="space-y-3">
                               <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
                                 Items
                               </h4>
                               {items.map((item, idx) => {
-                                const product = item.product || item;
-                                const imageUrl =
-                                  product.images?.[0]?.url ||
-                                  product.images?.[0] ||
-                                  fallbackImage;
-                                const price =
-                                  item.price || product.price || 0;
+                                const imageUrl = item.image || fallbackImage;
                                 return (
                                   <div
                                     key={idx}
@@ -236,7 +211,7 @@ export default function OrdersPage() {
                                     <div className="w-12 h-14 rounded-lg overflow-hidden bg-surface-700 shrink-0">
                                       <img
                                         src={imageUrl}
-                                        alt={product.name}
+                                        alt={item.name}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
                                           e.target.src = fallbackImage;
@@ -245,7 +220,7 @@ export default function OrdersPage() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-sm text-text-primary truncate">
-                                        {product.name}
+                                        {item.name}
                                       </p>
                                       <p className="text-xs text-text-muted">
                                         Qty: {item.quantity}
@@ -254,14 +229,13 @@ export default function OrdersPage() {
                                       </p>
                                     </div>
                                     <p className="text-sm font-medium text-accent">
-                                      {formatPrice(price * item.quantity)}
+                                      {formatPrice(item.price * item.quantity)}
                                     </p>
                                   </div>
                                 );
                               })}
                             </div>
 
-                            {/* Shipping Address */}
                             {order.shippingAddress && (
                               <div>
                                 <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
@@ -271,7 +245,7 @@ export default function OrdersPage() {
                                   </span>
                                 </h4>
                                 <p className="text-sm text-text-secondary">
-                                  {order.shippingAddress.fullName}
+                                  {order.shippingAddress.name}
                                   <br />
                                   {order.shippingAddress.address}
                                   <br />
@@ -283,14 +257,7 @@ export default function OrdersPage() {
                               </div>
                             )}
 
-                            {/* Payment & Totals */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-surface-700/50">
-                              <div className="flex items-center gap-2 text-xs text-text-muted">
-                                <CreditCard size={12} />
-                                <span>
-                                  {order.paymentMethod || "COD"}
-                                </span>
-                              </div>
                               <div className="flex items-center gap-4 text-sm">
                                 <span className="text-text-muted">
                                   Total:
@@ -301,19 +268,18 @@ export default function OrdersPage() {
                               </div>
                             </div>
 
-                            {/* Cancel Button */}
                             {cancelableStatuses.includes(status) && (
                               <div className="pt-1">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleCancelOrder(orderId);
+                                    handleCancelOrder(order.orderId || order._id);
                                   }}
-                                  disabled={cancelling === orderId}
+                                  disabled={cancelling === (order.orderId || order._id)}
                                   className="flex items-center gap-1.5 text-sm text-danger hover:text-danger/80 transition-colors disabled:opacity-50"
                                 >
                                   <XCircle size={16} />
-                                  {cancelling === orderId
+                                  {cancelling === (order.orderId || order._id)
                                     ? "Cancelling..."
                                     : "Cancel Order"}
                                 </button>
@@ -327,7 +293,6 @@ export default function OrdersPage() {
                 })}
               </div>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-10">
                   <button
@@ -355,11 +320,10 @@ export default function OrdersPage() {
                         <button
                           key={pageNum}
                           onClick={() => setPage(pageNum)}
-                          className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${
-                            page === pageNum
-                              ? "bg-accent text-white shadow-lg shadow-accent/25"
-                              : "bg-surface-800 border border-surface-700 text-text-muted hover:text-accent hover:border-accent/50"
-                          }`}
+                          className={`w-10 h-10 rounded-xl text-sm font-medium transition-all ${page === pageNum
+                            ? "bg-accent text-white shadow-lg shadow-accent/25"
+                            : "bg-surface-800 border border-surface-700 text-text-muted hover:text-accent hover:border-accent/50"
+                            }`}
                         >
                           {pageNum}
                         </button>

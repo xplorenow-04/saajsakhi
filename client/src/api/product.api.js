@@ -3,6 +3,7 @@ import axios from "axios";
 class ProductApi {
     constructor() {
         this.baseUrl = `${import.meta.env.VITE_ENV === "production" ? import.meta.env.VITE_BACKEND_URL_PROD : import.meta.env.VITE_BACKEND_URL}/api/products`;
+        this.adminBaseUrl = `${import.meta.env.VITE_ENV === "production" ? import.meta.env.VITE_BACKEND_URL_PROD : import.meta.env.VITE_BACKEND_URL}/api/admin/products`;
     }
 
     async listProducts(params = {}) {
@@ -52,7 +53,7 @@ class ProductApi {
 
     async createProduct(formData) {
         try {
-            const response = await axios.post(this.baseUrl, formData, {
+            const response = await axios.post(this.adminBaseUrl, formData, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" }
             });
@@ -64,7 +65,7 @@ class ProductApi {
 
     async updateProduct(id, formData) {
         try {
-            const response = await axios.put(`${this.baseUrl}/${id}`, formData, {
+            const response = await axios.put(`${this.adminBaseUrl}/${id}`, formData, {
                 withCredentials: true,
                 headers: { "Content-Type": "multipart/form-data" }
             });
@@ -76,7 +77,7 @@ class ProductApi {
 
     async deleteProduct(id) {
         try {
-            const response = await axios.delete(`${this.baseUrl}/${id}`, { withCredentials: true });
+            const response = await axios.delete(`${this.adminBaseUrl}/${id}`, { withCredentials: true });
             return { success: true, message: response.data.message };
         } catch (error) {
             return { success: false, message: error.response?.data?.message || error.message, error };

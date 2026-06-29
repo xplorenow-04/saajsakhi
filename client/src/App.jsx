@@ -27,7 +27,7 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import AdminProducts from './pages/admin/AdminProducts.jsx'
 import AdminOrders from './pages/admin/AdminOrders.jsx'
 import AdminUsers from './pages/admin/AdminUsers.jsx'
-import AdminLogin from './pages/admin/AdminLogin.jsx'
+import AdminCategories from './pages/admin/AdminCategories.jsx'
 
 function App() {
   const context = useContext(authContext);
@@ -80,10 +80,10 @@ function App() {
         <Route path='/chat/:id' element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path='/chat/group-info/:id' element={<ProtectedRoute><GroupInfoMain /></ProtectedRoute>} />
 
-        <Route path='/admin/login' element={<ProtectedRouteAuth><AdminLogin /></ProtectedRouteAuth>} />
         <Route path='/admin' element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path='products' element={<AdminProducts />} />
+          <Route path='categories' element={<AdminCategories />} />
           <Route path='orders' element={<AdminOrders />} />
           <Route path='users' element={<AdminUsers />} />
         </Route>

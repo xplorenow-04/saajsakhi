@@ -7,6 +7,13 @@ import {
   XCircle,
   Loader2,
   Filter,
+  Plus,
+  X,
+  User,
+  Phone,
+  Home,
+  MapPin,
+  Package
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
@@ -21,6 +28,14 @@ const statusColors = {
 
 const statusOptions = ["pending", "confirmed", "processing", "delivered", "cancelled"];
 
+const initialCustomer = {
+  customerName: "",
+  customerPhone: "",
+  customerAddress: "",
+  customerCity: "",
+  customerPincode: "",
+};
+
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -30,6 +45,15 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [cancelConfirm, setCancelConfirm] = useState(null);
+
+  const [manualModal, setManualModal] = useState(false);
+  const [customer, setCustomer] = useState({ ...initialCustomer });
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [productSearch, setProductSearch] = useState("");
+  const [productResults, setProductResults] = useState([]);
+  const [searchingProducts, setSearchingProducts] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [sizeInputs, setSizeInputs] = useState({});
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -75,11 +99,109 @@ export default function AdminOrders() {
     }
   };
 
+  const searchProducts = useCallback(async (query) => {
+    if (!query.trim()) {
+      setProductResults([]);
+      return;
+    }
+    setSearchingProducts(true);
+    const res = await adminApi.getProducts({ search: query, limit: 10 });
+    if (res.success) {
+      const products = res.data?.products ?? res.data ?? [];
+      setProductResults(products);
+    }
+    setSearchingProducts(false);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (productSearch.trim()) searchProducts(productSearch);
+      else setProductResults([]);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [productSearch, searchProducts]);
+
+  const addProduct = (product) => {
+    if (selectedProducts.find((p) => p._id === product._id)) {
+      toast.error("Product already added");
+      return;
+    }
+    setSelectedProducts((prev) => [...prev, { ...product, quantity: 1, size: "" }]);
+    setProductSearch("");
+    setProductResults([]);
+  };
+
+  const removeSelectedProduct = (id) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== id));
+  };
+
+  const updateSelectedProduct = (id, field, value) => {
+    setSelectedProducts((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, [field]: value } : p))
+    );
+  };
+
+  const resetManualForm = () => {
+    setCustomer({ ...initialCustomer });
+    setSelectedProducts([]);
+    setProductSearch("");
+    setProductResults([]);
+    setSizeInputs({});
+  };
+
+  const openManualModal = () => {
+    resetManualForm();
+    setManualModal(true);
+  };
+
+  const handleCreateManualOrder = async (e) => {
+    e.preventDefault();
+    if (!customer.customerName || !customer.customerPhone || !customer.customerAddress || !customer.customerCity || !customer.customerPincode) {
+      toast.error("All customer fields are required");
+      return;
+    }
+    if (selectedProducts.length === 0) {
+      toast.error("Add at least one product");
+      return;
+    }
+    for (const p of selectedProducts) {
+      if (!p.size) { toast.error(`Select size for ${p.name}`); return; }
+    }
+
+    setSubmitting(true);
+    const res = await adminApi.createManualOrder({
+      ...customer,
+      products: selectedProducts.map((p) => ({
+        productId: p._id,
+        size: p.size,
+        quantity: p.quantity,
+      })),
+    });
+    if (res.success) {
+      toast.success(res.message || "Manual order created");
+      setManualModal(false);
+      resetManualForm();
+      fetchOrders();
+    } else {
+      toast.error(res.message);
+    }
+    setSubmitting(false);
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">Orders</h1>
-        <p className="text-sm text-text-muted mt-0.5">Manage customer orders</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Orders</h1>
+          <p className="text-sm text-text-muted mt-0.5">Manage customer orders</p>
+        </div>
+        <button
+          onClick={openManualModal}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white hover:bg-accent/90 transition-all text-sm font-medium shadow-lg shadow-accent/20"
+        >
+          <Plus size={16} />
+          Create Manual Order
+        </button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -125,7 +247,7 @@ export default function AdminOrders() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-600">
-                  {["Order ID", "Customer", "Items", "Total", "Status", "Date", "Actions"].map((h) => (
+                    {["Order ID", "Customer", "Items", "Total", "Status", "Date", "Actions"].map((h) => (
                     <th
                       key={h}
                       className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-4 py-3 whitespace-nowrap"
@@ -234,7 +356,7 @@ export default function AdminOrders() {
         </div>
       )}
 
-      {/* Cancel Confirmation */}
+      {/* Delete Confirmation */}
       {cancelConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCancelConfirm(null)} />
@@ -255,6 +377,210 @@ export default function AdminOrders() {
                 Delete
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Manual Order Modal */}
+      {manualModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 px-4 overflow-y-auto">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setManualModal(false)} />
+          <div className="relative bg-surface-800 border border-surface-600 rounded-2xl w-full max-w-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-surface-600">
+              <h2 className="text-lg font-semibold text-text-primary">Create Manual Order</h2>
+              <button
+                onClick={() => { setManualModal(false); resetManualForm(); }}
+                className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-700 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateManualOrder} className="p-6 space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+                  <User size={16} className="text-accent" />
+                  Customer Details
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-text-secondary mb-1.5">Full Name</label>
+                    <input
+                      type="text"
+                      value={customer.customerName}
+                      onChange={(e) => setCustomer((p) => ({ ...p, customerName: e.target.value }))}
+                      className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+                      placeholder="Customer name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1.5">Phone</label>
+                    <input
+                      type="tel"
+                      value={customer.customerPhone}
+                      onChange={(e) => setCustomer((p) => ({ ...p, customerPhone: e.target.value }))}
+                      maxLength={10}
+                      className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+                      placeholder="9876543210"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1.5">City</label>
+                    <input
+                      type="text"
+                      value={customer.customerCity}
+                      onChange={(e) => setCustomer((p) => ({ ...p, customerCity: e.target.value }))}
+                      className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+                      placeholder="Mumbai"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1.5">Pincode</label>
+                    <input
+                      type="text"
+                      value={customer.customerPincode}
+                      onChange={(e) => setCustomer((p) => ({ ...p, customerPincode: e.target.value }))}
+                      maxLength={6}
+                      className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+                      placeholder="400001"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-text-secondary mb-1.5">Address</label>
+                    <textarea
+                      value={customer.customerAddress}
+                      onChange={(e) => setCustomer((p) => ({ ...p, customerAddress: e.target.value }))}
+                      rows={2}
+                      className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all resize-none"
+                      placeholder="Street, building, area..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+                  <Package size={16} className="text-accent" />
+                  Products
+                </h3>
+
+                <div className="relative mb-3">
+                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+                  <input
+                    type="text"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full bg-surface-700 border border-surface-600 rounded-xl pl-10 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+                  />
+                  {searchingProducts && (
+                    <Loader2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-accent animate-spin" />
+                  )}
+                </div>
+
+                {productResults.length > 0 && (
+                  <div className="mb-3 bg-surface-700 border border-surface-600 rounded-xl max-h-48 overflow-y-auto">
+                    {productResults.map((product) => (
+                      <button
+                        key={product._id}
+                        type="button"
+                        onClick={() => addProduct(product)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-600 transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-surface-600 overflow-hidden shrink-0">
+                          {product.images?.[0] ? (
+                            <img src={product.images[0]?.url || product.images[0]} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">N/A</div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-text-primary truncate">{product.name}</p>
+                          <p className="text-xs text-text-muted">₹{product.price} | {product.category}</p>
+                        </div>
+                        <Plus size={16} className="text-accent shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {selectedProducts.length > 0 && (
+                  <div className="space-y-2">
+                    {selectedProducts.map((product) => (
+                      <div key={product._id} className="flex items-center gap-3 bg-surface-700 rounded-xl px-4 py-3">
+                        <div className="w-10 h-10 rounded-lg bg-surface-600 overflow-hidden shrink-0">
+                          {product.images?.[0] ? (
+                            <img src={product.images[0]?.url || product.images[0]} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">N/A</div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-text-primary truncate">{product.name}</p>
+                          <p className="text-xs text-text-muted">₹{product.price}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={product.size}
+                            onChange={(e) => updateSelectedProduct(product._id, "size", e.target.value)}
+                            className="bg-surface-600 border border-surface-500 rounded-lg px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                          >
+                            <option value="">Size</option>
+                            {product.sizes?.map((s) => (
+                              <option key={s.size} value={s.size} disabled={s.stock === 0}>
+                                {s.size} {s.stock === 0 ? "(out)" : ""}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProduct(product._id, "quantity", Math.max(1, product.quantity - 1))}
+                              className="w-7 h-7 rounded-lg bg-surface-600 text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center"
+                            >
+                              -
+                            </button>
+                            <span className="w-7 text-center text-sm text-text-primary">{product.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProduct(product._id, "quantity", product.quantity + 1)}
+                              className="w-7 h-7 rounded-lg bg-surface-600 text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeSelectedProduct(product._id)}
+                            className="p-1.5 text-text-muted hover:text-danger transition-colors"
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setManualModal(false); resetManualForm(); }}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-white hover:bg-accent/90 transition-colors text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {submitting && <Loader2 size={16} className="animate-spin" />}
+                  {submitting ? "Creating..." : "Create Order"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -16,11 +16,13 @@ function ProtectedRouteAuth({ children }) {
     }
 
     if (user) {
-        // Redirect based on role
-        return <Navigate to={user.role === 'admin' ? '/admin' : '/'} replace />
+        if (user.role === "admin") {
+            return <Navigate to="/admin" replace />
+        }
+        return <Navigate to="/" replace />
     }
 
     return children
 }
 
-export default ProtectedRouteAuth
+export default ProtectedRouteAuth

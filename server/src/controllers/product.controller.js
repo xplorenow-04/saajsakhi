@@ -4,6 +4,7 @@ import { productService } from "../services/product.service.js";
 import { uploadFileOnCloudinary, deleteFileFromCloudinary } from "../services/cloudinary.service.js";
 import { logger } from "../utils/logger.js";
 import fs from "fs";
+import mongoose from "mongoose";
 
 const compressAndUpload = async (filePath) => {
     try {
@@ -22,10 +23,103 @@ const compressAndUpload = async (filePath) => {
     }
 };
 
-export const createProduct = asyncHandler(async (req, res) => {
-    const productData = req.body;
-    let images = [];
+function parseProductData(body) {
+    let data = { ...body };
+    if (body.data) {
+        try {
+            data = JSON.parse(body.data);
+        } catch (e) {
+            data = { ...body };
+        }
+    }
+    if (data.price !== undefined && data.price !== null && data.price !== "") {
+        data.price = Number(data.price);
+    }
+    if (data.discount !== undefined && data.discount !== null && data.discount !== "") {
+        data.discount = Number(data.discount);
+    }
+    if (typeof data.sizes === "string") {
+        try {
+            data.sizes = JSON.parse(data.sizes);
+        } catch (e) {
+            data.sizes = undefined;
+        }
+    }
+    if (data.isActive !== undefined) {
+        if (typeof data.isActive === "string") {
+            data.isActive = data.isActive === "true";
+        } else {
+            data.isActive = Boolean(data.isActive);
+        }
+    }
+    return data;
+}
 
+function validateProductData(data, isUpdate = false) {
+    const errors = [];
+
+    if (!isUpdate) {
+        if (!data.name || typeof data.name !== "string" || data.name.trim().length === 0) {
+            errors.push("Product name is required");
+        }
+        if (!data.description || typeof data.description !== "string" || data.description.trim().length === 0) {
+            errors.push("Product description is required");
+        }
+        if (!data.category || typeof data.category !== "string" || data.category.trim().length === 0) {
+            errors.push("Product category is required");
+        }
+        if (data.price === undefined || data.price === null || isNaN(data.price) || data.price < 0) {
+            errors.push("Valid product price is required");
+        }
+        if (!data.sizes || !Array.isArray(data.sizes) || data.sizes.length === 0) {
+            errors.push("At least one size is required");
+        }
+    }
+
+    if (data.name !== undefined && (typeof data.name !== "string" || data.name.trim().length === 0)) {
+        errors.push("Product name cannot be empty");
+    }
+    if (data.name !== undefined && data.name.length > 200) {
+        errors.push("Product name must be under 200 characters");
+    }
+    if (data.description !== undefined && data.description.length > 5000) {
+        errors.push("Product description must be under 5000 characters");
+    }
+    if (data.discount !== undefined && (isNaN(data.discount) || data.discount < 0 || data.discount > 100)) {
+        errors.push("Discount must be between 0 and 100");
+    }
+    if (data.price !== undefined && (isNaN(data.price) || data.price < 0)) {
+        errors.push("Price must be a positive number");
+    }
+    if (data.sizes !== undefined && Array.isArray(data.sizes)) {
+        for (const s of data.sizes) {
+            if (!s.size || typeof s.size !== "string" || s.size.trim().length === 0) {
+                errors.push("Each size must have a name");
+                break;
+            }
+            if (s.stock === undefined || isNaN(s.stock) || s.stock < 0) {
+                errors.push("Each size must have a valid stock count");
+                break;
+            }
+        }
+    }
+
+    return errors;
+}
+
+export const createProduct = asyncHandler(async (req, res) => {
+    const productData = parseProductData(req.body);
+    console.log('Product data ', productData);
+
+
+    const errors = validateProductData(productData, false);
+    if (errors.length > 0) {
+        return res.status(400).json(
+            new ApiResponse(400, null, errors.join("; "))
+        );
+    }
+
+    let images = [];
     if (req.files && req.files.length > 0) {
         const uploadPromises = req.files.map(file => compressAndUpload(file.path));
         const results = await Promise.all(uploadPromises);
@@ -41,8 +135,14 @@ export const createProduct = asyncHandler(async (req, res) => {
 
 export const getProduct = asyncHandler(async (req, res) => {
     const { slug } = req.params;
-    const product = await productService.getProductBySlug(slug);
 
+    if (!slug || slug.trim() === "") {
+        return res.status(400).json(
+            new ApiResponse(400, null, "Product slug is required")
+        );
+    }
+
+    const product = await productService.getProductBySlug(slug);
     await productService.incrementViewCount(product._id);
 
     return res.status(200).json(
@@ -52,6 +152,13 @@ export const getProduct = asyncHandler(async (req, res) => {
 
 export const getProductById = asyncHandler(async (req, res) => {
     const { id } = req.params;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json(
+            new ApiResponse(400, null, "Invalid product ID")
+        );
+    }
+
     const product = await productService.getProductById(id);
 
     return res.status(200).json(
@@ -70,15 +177,29 @@ export const listProducts = asyncHandler(async (req, res) => {
 
 export const updateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updateData = req.body;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json(
+            new ApiResponse(400, null, "Invalid product ID")
+        );
+    }
+
+    const productData = parseProductData(req.body);
+
+    const errors = validateProductData(productData, true);
+    if (errors.length > 0) {
+        return res.status(400).json(
+            new ApiResponse(400, null, errors.join("; "))
+        );
+    }
 
     if (req.files && req.files.length > 0) {
         const uploadPromises = req.files.map(file => compressAndUpload(file.path));
         const results = await Promise.all(uploadPromises);
-        updateData.images = results.filter(Boolean);
+        productData.images = results.filter(Boolean);
     }
 
-    const product = await productService.updateProduct(id, updateData, req.user._id);
+    const product = await productService.updateProduct(id, productData, req.user._id);
 
     return res.status(200).json(
         new ApiResponse(200, product, "Product updated successfully")
@@ -87,6 +208,13 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
 export const deleteProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json(
+            new ApiResponse(400, null, "Invalid product ID")
+        );
+    }
+
     const product = await productService.getProductById(id);
 
     if (product.images && product.images.length > 0) {

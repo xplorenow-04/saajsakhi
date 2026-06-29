@@ -17,8 +17,7 @@ import {
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
 import { productApi } from "../../api/product.api";
-
-const categories = ["traditional", "contemporary", "accessories", "festive"];
+import { useManageCategories } from "../../hooks/useCategories";
 
 const emptyProduct = {
   name: "",
@@ -45,6 +44,11 @@ export default function AdminProducts() {
   const [seeding, setSeeding] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [sizeInput, setSizeInput] = useState({ size: "", stock: "" });
+  const { categories, fetchCategories } = useManageCategories();
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -448,7 +452,7 @@ export default function AdminProducts() {
                   >
                     <option value="">Select category</option>
                     {categories.map((c) => (
-                      <option key={c} value={c} className="capitalize">{c}</option>
+                      <option key={c._id} value={c.name.toLowerCase()} className="capitalize">{c.name}</option>
                     ))}
                   </select>
                 </div>

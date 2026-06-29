@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { userAuth } from "../middlewares/userAuth.middleware.js";
-import { validate } from "../utils/validate.js";
-import { placeOrderSchema } from "../validators/ecommerce.validator.js";
 import {
     placeOrder,
+    placeGuestOrder,
     getOrder,
     getUserOrders,
     cancelOrder
@@ -11,9 +10,11 @@ import {
 
 const router = Router();
 
+router.post("/guest", placeGuestOrder);
+
 router.use(userAuth);
 
-router.post("/", validate(placeOrderSchema), placeOrder);
+router.post("/", placeOrder);
 router.get("/", getUserOrders);
 router.get("/:orderId", getOrder);
 router.post("/:orderId/cancel", cancelOrder);
