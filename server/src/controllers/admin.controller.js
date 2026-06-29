@@ -145,6 +145,15 @@ export const getProductAnalytics = asyncHandler(async (req, res) => {
     );
 });
 
+export const adminListProducts = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 20, ...filters } = req.query;
+    const result = await adminService.listProducts(filters, parseInt(page), parseInt(limit));
+
+    return res.status(200).json(
+        new ApiResponse(200, result, "Products fetched successfully")
+    );
+});
+
 export const seedProducts = asyncHandler(async (req, res) => {
     const sampleProducts = [
         {

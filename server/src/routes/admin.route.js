@@ -12,12 +12,12 @@ import {
     getAnalytics,
     createAdmin,
     getProductAnalytics,
+    adminListProducts,
     seedProducts,
     exportOrdersPDF
 } from "../controllers/admin.controller.js";
 import {
     createProduct,
-    listProducts,
     updateProduct,
     deleteProduct
 } from "../controllers/product.controller.js";
@@ -43,7 +43,7 @@ router.get("/users", getUsers);
 router.put("/users/:id/toggle-status", toggleUserStatus);
 router.delete("/users/:id", deleteUser);
 
-router.get("/products", listProducts);
+router.get("/products", adminListProducts);
 router.post("/products", upload.array("images", 5), createProduct);
 router.put("/products/:id", upload.array("images", 5), updateProduct);
 router.delete("/products/:id", deleteProduct);

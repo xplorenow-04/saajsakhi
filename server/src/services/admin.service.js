@@ -187,6 +187,42 @@ class AdminService {
         logger.info("User deleted", { userId });
         return { deleted: true };
     }
+
+    async listProducts(query, page = 1, limit = 20) {
+        const { search, category, sort } = query;
+        const filter = {};
+
+        if (category) filter.category = category.toLowerCase();
+        if (search) filter.name = { $regex: search, $options: "i" };
+
+        let sortOption = { createdAt: -1 };
+        if (sort === "price_asc") sortOption = { price: 1 };
+        else if (sort === "price_desc") sortOption = { price: -1 };
+        else if (sort === "newest") sortOption = { createdAt: -1 };
+        else if (sort === "name") sortOption = { name: 1 };
+
+        const skip = (page - 1) * limit;
+        const [products, total] = await Promise.all([
+            Product.find(filter)
+                .sort(sortOption)
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Product.countDocuments(filter)
+        ]);
+
+        return {
+            products,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasNextPage: page < Math.ceil(total / limit),
+                hasPrevPage: page > 1
+            }
+        };
+    }
 }
 
 export const adminService = new AdminService();
