@@ -311,10 +311,27 @@ export default function AdminProducts() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs font-medium ${product.totalStock > 10 ? "text-success" : product.totalStock > 0 ? "text-warning" : "text-danger"
-                        }`}>
-                        {product.totalStock ?? "N/A"}
-                      </span>
+                      <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                        {product.sizes?.length > 0 ? (
+                          <>
+                            {product.sizes.map((s, i) => {
+                              const stockLevel = s.stock === 0 ? "out" : s.stock < 5 ? "low" : "in";
+                              const chipClass = stockLevel === "out" ? "bg-danger/15 text-danger" : stockLevel === "low" ? "bg-warning/15 text-warning" : "bg-success/15 text-success";
+                              return (
+                                <span key={i} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium ${chipClass}`}>
+                                  <span className="uppercase">{s.size}</span>
+                                  <span className="opacity-70">{s.stock}</span>
+                                </span>
+                              );
+                            })}
+                            <span className="text-[11px] text-text-muted self-center ml-1">
+                              {product.sizes.reduce((sum, s) => sum + (s.stock || 0), 0)} total
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-text-muted">No sizes</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs text-text-secondary">{product.viewCount ?? 0}</span>
