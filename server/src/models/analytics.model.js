@@ -2,35 +2,32 @@ import mongoose from "mongoose";
 
 const analyticsSchema = new mongoose.Schema({
     date: {
-        type: String, // format YYYY-MM-DD
+        type: Date,
         required: true,
-        unique: true,
-        index: true
-    },
-    totalRevenue: {
-        type: Number,
-        default: 0
+        unique: true
     },
     totalOrders: {
         type: Number,
         default: 0
     },
-    totalUsers: {
+    totalRevenue: {
         type: Number,
         default: 0
     },
-    views: [
-        {
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product"
-            },
-            count: {
-                type: Number,
-                default: 0
-            }
-        }
-    ]
+    totalProductsSold: {
+        type: Number,
+        default: 0
+    },
+    dailyNewUsers: {
+        type: Number,
+        default: 0
+    },
+    cancelledOrders: {
+        type: Number,
+        default: 0
+    }
 }, { timestamps: true });
+
+analyticsSchema.index({ date: -1 });
 
 export const Analytics = mongoose.model("Analytics", analyticsSchema);

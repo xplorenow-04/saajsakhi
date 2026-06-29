@@ -10,27 +10,19 @@ const notificationSchema = new Schema({
         type: mongoose.Types.ObjectId,
         ref: "User"
     }],
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
     entity: {
         type: mongoose.Types.ObjectId,
         default: null
     },
     type: {
         type: String,
-        required: true
+        enum: ["group_add", "mention", "message", "admin_promote", "friend_request", "notify"]
     },
     isGroupNotification: {
         type: Boolean,
         default: false
     },
     isRead: {
-        type: Boolean,
-        default: false
-    },
-    readStatus: {
         type: Boolean,
         default: false
     },
@@ -41,9 +33,6 @@ const notificationSchema = new Schema({
     content: {
         type: String,
         required: true
-    },
-    message: {
-        type: String
     },
     renderUrl: {
         type: String

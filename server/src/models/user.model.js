@@ -32,19 +32,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png"
     },
-    avatar: {
-        type: String,
-        default: "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png"
-    },
-    role: {
-        type: String,
-        enum: ["customer", "admin"],
-        default: "customer"
-    },
-    isDisabled: {
-        type: Boolean,
-        default: false
-    },
     bio: {
         type: String,
         default: ""
@@ -63,6 +50,15 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     isVerified: {
+        type: Boolean,
+        default: false
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    },
+    isDisabled: {
         type: Boolean,
         default: false
     }
@@ -86,8 +82,7 @@ userSchema.methods.generateAccessToken = function () {
         {
             _id: this._id,
             name: this.name,
-            email: this.email,
-            role: this.role
+            email: this.email
         },
         process.env.JWT_ACCESS_SECRET,
         { expiresIn: process.env.EXPIRES_IN_ACCESS_TOKEN }

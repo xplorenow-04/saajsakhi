@@ -31,7 +31,7 @@ class UserApi {
                 }
             );
             return {
-                success: true,
+                success: response.data.success,
                 message: response.data.message,
                 data: response.data.data
             }

@@ -362,8 +362,8 @@ export default function AdminDashboard() {
                               <td className="py-3">
                                 <div className="flex items-center gap-3">
                                   <span className="text-xs text-muted w-5">{i + 1}.</span>
-                                  {p.images?.[0] && (
-                                    <img src={p.images[0]} alt="" className="w-8 h-10 rounded-lg object-cover bg-surface2" />
+                                  {(p.images?.[0]?.url || p.images?.[0]) && (
+                                  <img src={p.images[0]?.url || p.images[0]} alt="" className="w-8 h-10 rounded-lg object-cover bg-surface2" />
                                   )}
                                   <span className="font-medium truncate max-w-[200px]">{p.name}</span>
                                 </div>
@@ -424,7 +424,7 @@ export default function AdminDashboard() {
                         >
                           <td className="p-4">
                             <div className="flex items-center gap-3">
-                              <img src={p.images?.[0]} alt="" className="w-10 h-12 rounded-lg object-cover bg-surface2" />
+                              <img src={p.images?.[0]?.url || p.images?.[0]} alt="" className="w-10 h-12 rounded-lg object-cover bg-surface2" />
                               <span className="font-medium truncate max-w-[200px]">{p.name}</span>
                             </div>
                           </td>

@@ -30,7 +30,7 @@ export default function ProductDetail() {
       const res = await productApi.getProductById(id);
       if (res.success) {
         setProduct(res.data);
-        setSelectedSize(res.data.sizes?.[0] || '');
+        setSelectedSize(res.data.sizes?.[0]?.size || '');
       } else {
         setError(res.message);
       }
@@ -127,7 +127,7 @@ export default function ProductDetail() {
             >
               {!imgLoaded[mainImage] && <div className="absolute inset-0 skeleton" />}
               <img
-                src={product.images?.[mainImage]}
+                src={product.images?.[mainImage]?.url || product.images?.[mainImage]}
                 alt={product.name}
                 onLoad={() => setImgLoaded(prev => ({ ...prev, [mainImage]: true }))}
                 className={`w-full h-full object-cover transition-all duration-700 ${imgLoaded[mainImage] ? 'opacity-100' : 'opacity-0'}`}
@@ -155,7 +155,7 @@ export default function ProductDetail() {
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: `url(${product.images?.[mainImage]})`,
+                      background: `url(${product.images?.[mainImage]?.url || product.images?.[mainImage]})`,
                       backgroundSize: '200%',
                       backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
                     }}
@@ -175,7 +175,7 @@ export default function ProductDetail() {
                       mainImage === i ? 'border-accent' : 'border-border hover:border-accent/50'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img?.url || img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -228,17 +228,17 @@ export default function ProductDetail() {
                 <div>
                   <p className="text-xs text-muted uppercase tracking-wider mb-3">Select Size</p>
                   <div className="flex flex-wrap gap-3">
-                    {product.sizes?.map(size => (
+                    {product.sizes?.map(s => (
                       <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
+                        key={s.size}
+                        onClick={() => setSelectedSize(s.size)}
                         className={`w-14 h-14 rounded-xl text-sm font-medium border-2 transition-all ${
-                          selectedSize === size
+                          selectedSize === s.size
                             ? 'border-accent bg-accent/10 text-accent'
                             : 'border-border bg-surface2 text-secondary hover:border-accent/30 hover:text-primary'
                         }`}
                       >
-                        {size}
+                        {s.size}
                       </button>
                     ))}
                   </div>

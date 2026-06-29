@@ -86,7 +86,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       >
                         <Link to={`/product/${p._id}`} onClick={onClose}>
                           <img
-                            src={p.images?.[0]}
+                            src={p.images?.[0]?.url || p.images?.[0]}
                             alt={p.name}
                             className="w-20 h-24 object-cover rounded-lg"
                           />

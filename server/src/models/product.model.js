@@ -9,13 +9,15 @@ const productSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     category: {
         type: String,
         required: true,
         trim: true,
-        index: true
+        index: true,
+        lowercase: true
     },
     price: {
         type: Number,
@@ -25,40 +27,65 @@ const productSchema = new mongoose.Schema({
     discount: {
         type: Number,
         default: 0,
-        min: 0
+        min: 0,
+        max: 100
     },
-    sizes: {
-        type: [String],
-        required: true,
-        default: []
-    },
-    stock: {
-        type: Number,
-        required: true,
-        default: 0,
-        min: 0
-    },
-    images: {
-        type: [String],
-        required: true,
-        default: []
-    },
+    sizes: [{
+        size: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        stock: {
+            type: Number,
+            required: true,
+            min: 0,
+            default: 0
+        }
+    }],
+    images: [{
+        url: {
+            type: String,
+            required: true
+        },
+        publicId: {
+            type: String,
+            required: true
+        }
+    }],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
-    views: {
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    viewCount: {
         type: Number,
         default: 0
+    },
+    slug: {
+        type: String,
+        unique: true,
+        lowercase: true
     }
 }, { timestamps: true });
 
-// Compound index for filtering
 productSchema.index({ category: 1, price: 1 });
-productSchema.index({ price: 1, discount: -1 });
+productSchema.index({ name: "text", description: "text" });
+productSchema.index({ isActive: 1, createdAt: -1 });
 
-// Text index for search
-productSchema.index({ name: "text", description: "text", category: "text" });
+productSchema.virtual("discountedPrice").get(function () {
+    return this.price - (this.price * (this.discount || 0)) / 100;
+});
+
+productSchema.virtual("stock").get(function () {
+    return this.sizes?.reduce((total, entry) => total + (entry.stock || 0), 0) || 0;
+});
+
+productSchema.set("toJSON", { virtuals: true });
+productSchema.set("toObject", { virtuals: true });
 
 export const Product = mongoose.model("Product", productSchema);

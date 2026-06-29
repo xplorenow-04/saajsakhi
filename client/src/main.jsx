@@ -4,9 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import {AuthProvider} from './context/AuthProvider.jsx'
-import { initializeSocketListeners } from './socket/socketListeners.js'
 
-initializeSocketListeners();
 
 createRoot(document.getElementById('root')).render(
   <>

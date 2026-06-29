@@ -26,8 +26,9 @@ export const addToCartService = async (userId, productId, quantity = 1, size) =>
         throw new ApiError(404, "Product not found");
     }
 
-    if (product.stock < quantity) {
-        throw new ApiError(400, `Insufficient stock. Only ${product.stock} items available.`);
+    const sizeStock = product.sizes?.find(s => s.size === size)?.stock || 0;
+    if (sizeStock < quantity) {
+        throw new ApiError(400, `Insufficient stock. Only ${sizeStock} items available for size ${size}.`);
     }
 
     let cart = await Cart.findOne({ userId });
@@ -69,8 +70,9 @@ export const updateCartItemService = async (userId, productId, quantity, size) =
 
     // Verify stock
     const product = await Product.findById(productId);
-    if (product && product.stock < quantity) {
-        throw new ApiError(400, `Insufficient stock. Only ${product.stock} items available.`);
+    const sizeStock = product?.sizes?.find(s => s.size === size)?.stock || 0;
+    if (product && sizeStock < quantity) {
+        throw new ApiError(400, `Insufficient stock. Only ${sizeStock} items available for size ${size}.`);
     }
 
     cart.products[itemIndex].quantity = quantity;

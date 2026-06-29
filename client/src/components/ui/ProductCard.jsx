@@ -49,7 +49,7 @@ const ProductCard = memo(({ product, index = 0 }) => {
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-surface2 mb-4">
           {!imgLoaded && <div className="absolute inset-0 skeleton" />}
           <motion.img
-            src={product.images?.[0]}
+            src={product.images?.[0]?.url || product.images?.[0]}
             alt={product.name}
             onLoad={() => setImgLoaded(true)}
             className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}

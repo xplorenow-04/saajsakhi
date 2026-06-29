@@ -67,7 +67,7 @@ export default function Wishlist() {
                 className="group"
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-surface2 mb-3">
-                  <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
+                  <img src={item.images?.[0]?.url || item.images?.[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
                   <button
                     onClick={() => removeFromWishlist(item._id)}
                     className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all"

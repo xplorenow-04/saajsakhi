@@ -31,8 +31,10 @@ export const placeOrderService = async (userId, shippingInfo) => {
             throw new ApiError(404, "One of the products in your cart no longer exists.");
         }
 
-        if (product.stock < item.quantity) {
-            throw new ApiError(400, `Product [${product.name}] is out of stock or has insufficient quantity.`);
+        const sizeEntry = product.sizes?.find(s => s.size === item.size);
+        const sizeStock = sizeEntry?.stock || 0;
+        if (sizeStock < item.quantity) {
+            throw new ApiError(400, `Product [${product.name}] in size ${item.size} is out of stock or has insufficient quantity.`);
         }
 
         const unitPrice = product.discount > 0 
@@ -49,11 +51,12 @@ export const placeOrderService = async (userId, shippingInfo) => {
         });
     }
 
-    // Decrement stock in database
+    // Decrement stock in database (per-size)
     for (const item of cart.products) {
-        await Product.findByIdAndUpdate(item.product._id, {
-            $inc: { stock: -item.quantity }
-        });
+        await Product.findOneAndUpdate(
+            { _id: item.product._id, "sizes.size": item.size },
+            { $inc: { "sizes.$.stock": -item.quantity } }
+        );
     }
 
     // Create the order

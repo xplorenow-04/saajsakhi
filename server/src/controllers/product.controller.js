@@ -10,6 +10,37 @@ import {
 } from "../services/product.service.js";
 import { uploadFileOnCloudinary } from "../services/cloudinary.service.js";
 
+// Helper to map sizes input to mongoose subdocument schema format [{ size, stock }]
+const mapSizesInput = (sizesInput, topLevelStock) => {
+    let parsed = [];
+    if (typeof sizesInput === "string") {
+        try {
+            parsed = JSON.parse(sizesInput);
+        } catch (e) {
+            parsed = sizesInput.split(",").map(s => s.trim());
+        }
+    } else if (Array.isArray(sizesInput)) {
+        parsed = sizesInput;
+    } else if (sizesInput) {
+        parsed = [sizesInput];
+    }
+
+    return parsed.map(item => {
+        if (typeof item === "string") {
+            return {
+                size: item,
+                stock: topLevelStock !== undefined ? Number(topLevelStock) : 0
+            };
+        } else if (typeof item === "object" && item !== null) {
+            return {
+                size: item.size || "",
+                stock: item.stock !== undefined ? Number(item.stock) : (topLevelStock !== undefined ? Number(topLevelStock) : 0)
+            };
+        }
+        return { size: String(item), stock: topLevelStock !== undefined ? Number(topLevelStock) : 0 };
+    }).filter(item => item.size !== "");
+};
+
 /**
  * Get all products with filters
  */
@@ -46,18 +77,8 @@ export const getProductById = asyncHandler(async (req, res) => {
 export const createProduct = asyncHandler(async (req, res) => {
     const { name, description, category, price, discount, sizes, stock } = req.body;
 
-    if (!name || !description || !category || !price || !sizes || stock === undefined) {
-        throw new ApiError(400, "All product fields (name, description, category, price, sizes, stock) are required.");
-    }
-
-    // Parse sizes if they are sent as string (e.g. from FormData)
-    let parsedSizes = sizes;
-    if (typeof sizes === "string") {
-        try {
-            parsedSizes = JSON.parse(sizes);
-        } catch (e) {
-            parsedSizes = sizes.split(",").map(s => s.trim());
-        }
+    if (!name || !description || !category || !price || !sizes) {
+        throw new ApiError(400, "All product fields (name, description, category, price, sizes) are required.");
     }
 
     // Handle uploaded images
@@ -66,7 +87,7 @@ export const createProduct = asyncHandler(async (req, res) => {
         for (const file of req.files) {
             const uploadRes = await uploadFileOnCloudinary(file.path);
             if (uploadRes && uploadRes.success) {
-                imageUrls.push(uploadRes.secure_url);
+                imageUrls.push({ url: uploadRes.secure_url, publicId: uploadRes.public_id });
             }
         }
     }
@@ -77,8 +98,7 @@ export const createProduct = asyncHandler(async (req, res) => {
         category,
         price: Number(price),
         discount: Number(discount || 0),
-        sizes: parsedSizes,
-        stock: Number(stock),
+        sizes: mapSizesInput(sizes, stock),
         images: imageUrls
     };
 
@@ -94,16 +114,6 @@ export const createProduct = asyncHandler(async (req, res) => {
  */
 export const updateProduct = asyncHandler(async (req, res) => {
     const { name, description, category, price, discount, sizes, stock, existingImages } = req.body;
-
-    // Parse sizes if sent as string
-    let parsedSizes = sizes;
-    if (sizes && typeof sizes === "string") {
-        try {
-            parsedSizes = JSON.parse(sizes);
-        } catch (e) {
-            parsedSizes = sizes.split(",").map(s => s.trim());
-        }
-    }
 
     // Parse existing images (if any are retained)
     let parsedExistingImages = [];
@@ -125,7 +135,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
         for (const file of req.files) {
             const uploadRes = await uploadFileOnCloudinary(file.path);
             if (uploadRes && uploadRes.success) {
-                newImageUrls.push(uploadRes.secure_url);
+                newImageUrls.push({ url: uploadRes.secure_url, publicId: uploadRes.public_id });
             }
         }
     }
@@ -136,8 +146,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     if (category) updateData.category = category;
     if (price !== undefined) updateData.price = Number(price);
     if (discount !== undefined) updateData.discount = Number(discount);
-    if (parsedSizes) updateData.sizes = parsedSizes;
-    if (stock !== undefined) updateData.stock = Number(stock);
+    if (sizes !== undefined) updateData.sizes = mapSizesInput(sizes, stock);
     if (newImageUrls.length > 0 || req.files) updateData.images = newImageUrls;
 
     const product = await updateProductService(req.params.id, updateData);

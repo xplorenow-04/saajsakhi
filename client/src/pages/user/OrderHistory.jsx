@@ -120,7 +120,7 @@ export default function OrderHistory() {
                             return (
                               <div key={idx} className="flex items-center gap-4">
                                 <img
-                                  src={prod?.images?.[0] || 'https://via.placeholder.com/60'}
+                                  src={prod?.images?.[0]?.url || 'https://via.placeholder.com/60'}
                                   alt=""
                                   className="w-14 h-16 rounded-lg object-cover bg-surface2"
                                 />

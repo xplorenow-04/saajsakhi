@@ -45,10 +45,10 @@ export const getProductsService = async (queries = {}) => {
         dbQuery.category = category;
     }
 
-    if (minPrice !== undefined || maxPrice !== undefined) {
+    if ((minPrice !== undefined && minPrice !== "") || (maxPrice !== undefined && maxPrice !== "")) {
         dbQuery.price = {};
-        if (minPrice !== undefined) dbQuery.price.$gte = Number(minPrice);
-        if (maxPrice !== undefined) dbQuery.price.$lte = Number(maxPrice);
+        if (minPrice !== undefined && minPrice !== "") dbQuery.price.$gte = Number(minPrice);
+        if (maxPrice !== undefined && maxPrice !== "") dbQuery.price.$lte = Number(maxPrice);
     }
 
     if (size && size.trim() !== "") {
@@ -102,7 +102,7 @@ export const getFeaturedProductsService = async () => {
     if (cached) return cached;
 
     const products = await Product.find({})
-        .sort({ discount: -1, views: -1 })
+        .sort({ discount: -1, viewCount: -1 })
         .limit(8);
 
     await setCachedData(cacheKey, products, 600); // Cache for 10 minutes
@@ -119,7 +119,7 @@ export const getProductByIdService = async (productId) => {
     const cached = await getCachedData(cacheKey);
     if (cached) {
         // Increment views in DB asynchronously
-        Product.findByIdAndUpdate(productId, { $inc: { views: 1 } }).exec().catch(err => {
+        Product.findByIdAndUpdate(productId, { $inc: { viewCount: 1 } }).exec().catch(err => {
             console.error("Failed to increment views on cached hit:", err);
         });
         return cached;
@@ -127,7 +127,7 @@ export const getProductByIdService = async (productId) => {
 
     const product = await Product.findByIdAndUpdate(
         productId,
-        { $inc: { views: 1 } },
+        { $inc: { viewCount: 1 } },
         { new: true }
     ).populate("createdBy", "name email");
 
@@ -167,10 +167,12 @@ export const updateProductService = async (productId, updateData) => {
     // Handle image replacements in Cloudinary if new images are provided
     if (updateData.images && updateData.images.length > 0) {
         const oldImages = product.images || [];
+        const newUrls = updateData.images.map(img => img.url || img);
         // Delete old images that are not in the new list
-        for (const imgUrl of oldImages) {
-            if (!updateData.images.includes(imgUrl)) {
-                const pubId = getCloudinaryPublicId(imgUrl);
+        for (const oldImg of oldImages) {
+            const oldUrl = oldImg.url || oldImg;
+            if (!newUrls.includes(oldUrl)) {
+                const pubId = getCloudinaryPublicId(oldUrl);
                 if (pubId) {
                     await deleteFileFromCloudinary(pubId);
                 }
@@ -203,8 +205,8 @@ export const deleteProductService = async (productId) => {
 
     // Delete images from Cloudinary
     if (product.images && product.images.length > 0) {
-        for (const imgUrl of product.images) {
-            const pubId = getCloudinaryPublicId(imgUrl);
+        for (const img of product.images) {
+            const pubId = getCloudinaryPublicId(img.url || img);
             if (pubId) {
                 await deleteFileFromCloudinary(pubId);
             }

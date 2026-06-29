@@ -112,7 +112,7 @@ export default function Cart() {
                     className="flex gap-4 p-4 rounded-2xl border border-border bg-surface/50"
                   >
                     <Link to={`/product/${p._id}`}>
-                      <img src={p.images?.[0]} alt={p.name} className="w-24 h-28 object-cover rounded-xl" />
+                      <img src={p.images?.[0]?.url || p.images?.[0]} alt={p.name} className="w-24 h-28 object-cover rounded-xl" />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-muted uppercase tracking-wider">{p.category}</p>

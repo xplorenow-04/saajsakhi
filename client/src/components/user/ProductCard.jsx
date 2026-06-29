@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 function ProductCard({ product }) {
     const { addToCart, fetchCart } = useShopStore();
     const [hovered, setHovered] = useState(false);
-    const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
+    const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]?.size || "");
     const [adding, setAdding] = useState(false);
 
     const discountPrice = product.discount > 0 ? product.price - product.discount : null;
@@ -59,8 +59,8 @@ function ProductCard({ product }) {
         }
     };
 
-    const displayImage = product.images?.[0] || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80";
-    const hoverImage = product.images?.[1] || displayImage;
+    const displayImage = product.images?.[0]?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80";
+    const hoverImage = product.images?.[1]?.url || displayImage;
 
     return (
         <div 
@@ -95,20 +95,20 @@ function ProductCard({ product }) {
                     <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex flex-col space-y-3">
                         {/* Size Selection */}
                         <div className="flex items-center justify-center space-x-2">
-                            {product.sizes?.map((size) => (
+                            {product.sizes?.map((s) => (
                                 <button
-                                    key={size}
+                                    key={s.size}
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        setSelectedSize(size);
+                                        setSelectedSize(s.size);
                                     }}
                                     className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
-                                        selectedSize === size
+                                        selectedSize === s.size
                                             ? "bg-amber-400 text-gray-900 shadow-md shadow-amber-400/20"
                                             : "bg-gray-800/80 text-white hover:bg-gray-700"
                                     }`}
                                 >
-                                    {size}
+                                    {s.size}
                                 </button>
                             ))}
                         </div>

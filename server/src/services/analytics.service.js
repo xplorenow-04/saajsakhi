@@ -42,9 +42,9 @@ export const getDashboardAnalyticsService = async () => {
 
     // 3. Most viewed products
     const mostViewedProducts = await Product.find({})
-        .sort({ views: -1 })
+        .sort({ viewCount: -1 })
         .limit(5)
-        .select("name price discount images views");
+        .select("name price discount images viewCount");
 
     // 4. Sales and orders count by month (for charts)
     // Aggregating for the last 6 months
