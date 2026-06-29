@@ -20,7 +20,8 @@ import {
     getAllUsers,
     authMe,
     searchUsers,
-    getOnlinePartners
+    getOnlinePartners,
+    refreshAccessToken
 
 } from '../controllers/user.controller.js';
 import { sendVerificationToken } from '../services/sendVerificationToken.js';
@@ -47,6 +48,7 @@ router.route("/profile/:id").get(userAuth, getPublicUserProfile)
 router.route("/update-profile").put(userAuth, updateUserProfile)
 router.route("/email/verify/:token").get(verifyUser)
 router.route("/email/is-verify/:email").get(isVerifiedUser)
+router.route("/refresh-token").post(refreshAccessToken)
 router.route("/is-logged-in").get(userAuth, isLoggedInUser)
 router.route("/email/resend-verification").post(resendEmailVerification)
 

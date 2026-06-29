@@ -179,6 +179,38 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 })
 
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
+        throw new ApiError(401, "Refresh token required");
+    }
+
+    try {
+        const decodedToken = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_ACCESS_SECRET);
+
+        const user = await User.findById(decodedToken._id).select("-password");
+
+        if (!user || user.refreshToken !== refreshToken) {
+            throw new ApiError(401, "Invalid refresh token");
+        }
+
+        const tokens = generateTokens(user);
+        user.refreshToken = tokens.refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        return res
+            .status(200)
+            .cookie("accessToken", tokens.accessToken, getCookieOptions(req, 24 * 60 * 60 * 1000))
+            .cookie("refreshToken", tokens.refreshToken, getCookieOptions(req, 7 * 24 * 60 * 60 * 1000))
+            .json(
+                new ApiResponse(200, { accessToken: tokens.accessToken }, "Token refreshed successfully")
+            );
+    } catch (error) {
+        throw new ApiError(401, "Invalid or expired refresh token");
+    }
+});
+
 const sendOTP = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -1055,6 +1087,7 @@ export {
   loginUser,
   isLoggedInUser,
   logoutUser,
+  refreshAccessToken,
   uploadAvatar,
   getUserAvatar,
   getUserProfile,

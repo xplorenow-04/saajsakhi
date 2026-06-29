@@ -61,17 +61,13 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: ["pending", "confirmed", "processing", "delivered", "cancelled"],
+        enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],
         default: "pending",
         index: true
     },
     whatsappSent: {
         type: Boolean,
         default: false
-    },
-    paymentMethod: {
-        type: String,
-        default: "cod"
     },
     orderId: {
         type: String,

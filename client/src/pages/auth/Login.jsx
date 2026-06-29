@@ -1,19 +1,24 @@
 import React, { useState, useContext } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { userApi } from '../../api/user.api'
+import { adminApi } from '../../api/admin.api'
 import { authContext } from '../../context/AuthProvider.jsx'
-import { useNavigate } from 'react-router-dom'
 import { userAuthStore } from '../../store/userStore.js'
 import { socket } from '../../socket/socket.js'
 import { socketEvents } from '../../constants/socketEvents.js'
-import { Zap, Mail, Lock, Loader2 } from 'lucide-react'
+import { Zap, Shield, Mail, Lock, KeyRound, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 function Login() {
-    const [form, setForm] = useState({ email: '', password: '' })
-    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
+    const location = useLocation()
+    const isAdminRoute = location.pathname.startsWith('/admin')
     const setUser1 = userAuthStore((s) => s.setUser)
     const authData = useContext(authContext)
-    const navigate = useNavigate()
+
+    const [mode, setMode] = useState('login')
+    const [form, setForm] = useState({ email: '', password: '', secretKey: '' })
+    const [loading, setLoading] = useState(false)
 
     const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
 
@@ -35,11 +40,31 @@ function Login() {
         return true
     }
 
-    const login = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        if (!validate()) return
+        if (mode === 'login' && !validate()) return
         setLoading(true)
+
         try {
+            if (mode === 'create') {
+                if (!form.secretKey) {
+                    toast.error('Secret key is required')
+                    setLoading(false)
+                    return
+                }
+                const res = await adminApi.createAdmin({
+                    email: form.email,
+                    password: form.password,
+                    secretKey: form.secretKey,
+                })
+                if (!res.success) {
+                    toast.error(res.message)
+                    setLoading(false)
+                    return
+                }
+                toast.success(res.message || 'Admin access granted')
+            }
+
             const response = await userApi.loginUser({ email: form.email.trim(), password: form.password })
             if (response.success) {
                 authData.login(response.data)
@@ -71,15 +96,46 @@ function Login() {
                 <div className="flex flex-col items-center pt-12 pb-8 px-8 relative z-10">
                     <div className="flex items-center justify-center w-14 h-14 rounded-2xl mb-5 shadow-lg animate-float"
                         style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 24px rgba(99,102,241,0.5)' }}>
-                        <Zap size={24} color="#fff" />
+                        {isAdminRoute ? <Shield size={24} color="#fff" /> : <Zap size={24} color="#fff" />}
                     </div>
-                    <h1 className="text-2xl font-bold text-text-primary tracking-tight">Welcome back</h1>
-                    <p className="text-sm text-text-dim mt-2">Sign in to continue</p>
+                    <h1 className="text-2xl font-bold text-text-primary tracking-tight">
+                        {isAdminRoute ? 'Admin Access' : 'Welcome back'}
+                    </h1>
+                    <p className="text-sm text-text-dim mt-2">
+                        {isAdminRoute ? 'Sign in to manage your store' : 'Sign in to continue'}
+                    </p>
                 </div>
 
                 <div className="h-px bg-white/[0.06] mx-8" />
 
-                <form className="flex flex-col gap-4 px-8 pt-8 pb-10 relative z-10" onSubmit={login} noValidate>
+                {isAdminRoute && (
+                    <div className="flex mx-8 mt-6 bg-surface-700 rounded-xl p-1">
+                        <button
+                            type="button"
+                            onClick={() => setMode('login')}
+                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                                mode === 'login'
+                                    ? 'bg-accent text-white shadow-md'
+                                    : 'text-text-muted hover:text-text-primary'
+                            }`}
+                        >
+                            Sign In
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMode('create')}
+                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                                mode === 'create'
+                                    ? 'bg-accent text-white shadow-md'
+                                    : 'text-text-muted hover:text-text-primary'
+                            }`}
+                        >
+                            New Admin
+                        </button>
+                    </div>
+                )}
+
+                <form className="flex flex-col gap-4 px-8 pt-8 pb-10 relative z-10" onSubmit={handleSubmit} noValidate>
                     <div className="relative group">
                         <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dim pointer-events-none transition-colors group-focus-within:text-accent-light" />
                         <input
@@ -108,6 +164,20 @@ function Login() {
                         />
                     </div>
 
+                    {isAdminRoute && mode === 'create' && (
+                        <div className="relative group">
+                            <KeyRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dim pointer-events-none transition-colors group-focus-within:text-accent-light" />
+                            <input
+                                className="w-full bg-surface-700 border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-text-primary text-sm outline-none transition-all duration-200 placeholder:text-text-dim focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
+                                type="password"
+                                name="secretKey"
+                                placeholder="Enter secret key"
+                                value={form.secretKey}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    )}
+
                     <button
                         id="login-submit"
                         type="submit"
@@ -116,14 +186,26 @@ function Login() {
                         style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.4)' }}
                     >
                         {loading && <Loader2 size={16} className="animate-spin" />}
-                        {loading ? 'Signing In…' : 'Sign In'}
+                        {loading
+                            ? 'Processing…'
+                            : isAdminRoute && mode === 'create'
+                                ? 'Create Admin'
+                                : 'Sign In'}
                     </button>
 
                     <p className="text-center text-xs text-text-dim mt-2">
-                        Don't have an account?{' '}
-                        <a href="/register" className="text-accent-light hover:text-violet-light transition-colors duration-150 font-medium">
-                            Create one
-                        </a>
+                        {isAdminRoute ? (
+                            <Link to="/login" className="text-accent-light hover:text-violet-light transition-colors duration-150 font-medium">
+                                Back to user login
+                            </Link>
+                        ) : (
+                            <>
+                                Don't have an account?{' '}
+                                <Link to="/register" className="text-accent-light hover:text-violet-light transition-colors duration-150 font-medium">
+                                    Create one
+                                </Link>
+                            </>
+                        )}
                     </p>
                 </form>
             </div>

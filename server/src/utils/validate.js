@@ -1,6 +1,9 @@
 import { ApiError } from "./apiUtils.js";
 
 export const validate = (schema) => (req, res, next) => {
+    console.log("validate middleware");
+    console.log("next =", next);
+    console.log(typeof next);
     try {
         const parsed = schema.parse(req.body);
         req.body = parsed;
@@ -17,6 +20,6 @@ export const validate = (schema) => (req, res, next) => {
                 details
             });
         }
-        next(new ApiError(400, error.message || "Validation failed"));
+        throw new ApiError(400, error.message || "Validation failed")
     }
 };
