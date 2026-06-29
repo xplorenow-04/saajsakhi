@@ -255,3 +255,18 @@ export const getFeaturedProducts = asyncHandler(async (req, res) => {
         new ApiResponse(200, products, "Featured products fetched successfully")
     );
 });
+
+export const getProductSuggestions = asyncHandler(async (req, res) => {
+    const { q } = req.query;
+    if (!q || q.trim().length < 1) {
+        return res.status(200).json(
+            new ApiResponse(200, [], "No query provided")
+        );
+    }
+
+    const suggestions = await productService.getSuggestions(q.trim());
+
+    return res.status(200).json(
+        new ApiResponse(200, suggestions, "Suggestions fetched successfully")
+    );
+});

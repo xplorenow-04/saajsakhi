@@ -224,6 +224,23 @@ class ProductService {
         return products;
     }
 
+    async getSuggestions(query) {
+        const products = await Product.find({
+            isActive: true,
+            name: { $regex: query, $options: "i" }
+        })
+            .select("name slug images")
+            .limit(6)
+            .lean();
+
+        return products.map(p => ({
+            _id: p._id,
+            name: p.name,
+            slug: p.slug,
+            image: p.images?.[0]?.url || ""
+        }));
+    }
+
     async invalidateProductCache(productId = null) {
         try {
             const keys = await redis.keys("products:*");

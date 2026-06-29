@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import {
   Search,
   SlidersHorizontal,
@@ -47,6 +47,10 @@ export default function ProductListing() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
+  const suggestTimer = useRef(null);
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const currentCategory = searchParams.get("category") || "";
@@ -105,6 +109,33 @@ export default function ProductListing() {
   useEffect(() => {
     setSearchInput(currentSearch);
   }, [currentSearch]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (suggestTimer.current) clearTimeout(suggestTimer.current);
+    if (searchInput.trim().length < 1) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    suggestTimer.current = setTimeout(async () => {
+      const res = await productApi.getSuggestions(searchInput.trim());
+      if (res.success) {
+        setSuggestions(res.data || []);
+        setShowSuggestions(true);
+      }
+    }, 250);
+    return () => { if (suggestTimer.current) clearTimeout(suggestTimer.current); };
+  }, [searchInput]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -305,7 +336,7 @@ export default function ProductListing() {
 
           {/* Top Bar: Search + Sort + Mobile Filter Toggle */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <form onSubmit={handleSearch} className="flex-1">
+            <form onSubmit={handleSearch} className="flex-1" ref={searchRef}>
               <div className="relative">
                 <Search
                   size={16}
@@ -315,9 +346,33 @@ export default function ProductListing() {
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
+                  onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
                   placeholder="Search products..."
                   className="w-full bg-surface-800 border border-surface-600 rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
                 />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-surface-800 border border-surface-600 rounded-xl shadow-2xl overflow-hidden z-50">
+                    {suggestions.map((p) => (
+                      <Link
+                        key={p._id}
+                        to={`/shop/${p.slug}`}
+                        onClick={() => { setSearchInput(""); setShowSuggestions(false); }}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-700 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-surface-700 overflow-hidden shrink-0">
+                          {p.image ? (
+                            <img src={p.image} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Search size={12} className="text-text-muted" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-sm text-text-primary truncate">{p.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             </form>
 

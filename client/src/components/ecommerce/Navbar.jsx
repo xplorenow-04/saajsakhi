@@ -35,9 +35,13 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const categoriesRef = useRef(null);
   const profileRef = useRef(null);
+  const searchRef = useRef(null);
+  const suggestTimer = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -53,10 +57,30 @@ export default function Navbar() {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (suggestTimer.current) clearTimeout(suggestTimer.current);
+    if (searchQuery.trim().length < 1) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    suggestTimer.current = setTimeout(async () => {
+      const res = await productApi.getSuggestions(searchQuery.trim());
+      if (res.success) {
+        setSuggestions(res.data || []);
+        setShowSuggestions(true);
+      }
+    }, 250);
+    return () => { if (suggestTimer.current) clearTimeout(suggestTimer.current); };
+  }, [searchQuery]);
 
   useEffect(() => {
     if (user) fetchCart();
@@ -152,6 +176,7 @@ export default function Navbar() {
           <form
             onSubmit={handleSearch}
             className="hidden lg:flex items-center flex-1 max-w-md mx-8"
+            ref={searchRef}
           >
             <div className="relative w-full">
               <Search
@@ -162,9 +187,33 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
                 placeholder="Search products..."
                 className="w-full bg-surface-800 border border-surface-600 rounded-full pl-10 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
               />
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-surface-800 border border-surface-600 rounded-xl shadow-2xl overflow-hidden z-50">
+                  {suggestions.map((p) => (
+                    <Link
+                      key={p._id}
+                      to={`/shop/${p.slug}`}
+                      onClick={() => { setSearchQuery(""); setShowSuggestions(false); }}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-700 transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-surface-700 overflow-hidden shrink-0">
+                        {p.image ? (
+                          <img src={p.image} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Search size={12} className="text-text-muted" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-sm text-text-primary truncate">{p.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </form>
 
@@ -288,9 +337,33 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
                 placeholder="Search products..."
                 className="w-full bg-surface-700 border border-surface-600 rounded-full pl-10 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
               />
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-surface-800 border border-surface-600 rounded-xl shadow-2xl overflow-hidden z-50">
+                  {suggestions.map((p) => (
+                    <Link
+                      key={p._id}
+                      to={`/shop/${p.slug}`}
+                      onClick={() => { setSearchQuery(""); setShowSuggestions(false); setMobileMenuOpen(false); }}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-700 transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-surface-700 overflow-hidden shrink-0">
+                        {p.image ? (
+                          <img src={p.image} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Search size={12} className="text-text-muted" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-sm text-text-primary truncate">{p.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </form>
 
