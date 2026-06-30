@@ -1,3 +1,4 @@
+import * as XLSX from "xlsx";
 import { useState, useEffect, useCallback } from "react";
 import {
   Search,
@@ -14,7 +15,8 @@ import {
   Home,
   MapPin,
   Package,
-  FileDown
+  FileDown,
+  FileSpreadsheet
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
@@ -56,12 +58,42 @@ export default function AdminOrders() {
   const [submitting, setSubmitting] = useState(false);
   const [sizeInputs, setSizeInputs] = useState({});
   const [exporting, setExporting] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   const handleExportPDF = async () => {
     setExporting(true);
     const res = await adminApi.exportOrdersPDF();
     if (!res.success) toast.error(res.message || "Failed to export PDF");
     setExporting(false);
+  };
+
+  const handleExportExcel = async () => {
+    setExportingExcel(true);
+    try {
+      const res = await adminApi.getOrders({ limit: 10000 });
+      if (res.success) {
+        const allOrders = res.data?.orders ?? res.data ?? [];
+        const data = allOrders.map((o) => ({
+          "Order ID": o.orderId || o._id?.slice(-8) || "",
+          Customer: o.shippingAddress?.name || o.user?.name || "N/A",
+          Email: o.user?.email || "",
+          Phone: o.shippingAddress?.phone || o.user?.phone || "",
+          Items: o.orderedProducts?.length ?? o.items?.length ?? 0,
+          "Total (₹)": o.finalAmount || 0,
+          Status: o.orderStatus || "pending",
+          Date: o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN") : "--",
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Orders");
+        XLSX.writeFile(wb, `orders-${Date.now()}.xlsx`);
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error("Failed to export Excel");
+    }
+    setExportingExcel(false);
   };
 
   const fetchOrders = useCallback(async () => {
@@ -212,6 +244,14 @@ export default function AdminOrders() {
           >
             <FileDown size={16} />
             {exporting ? "Exporting..." : "Export PDF"}
+          </button>
+          <button
+            onClick={handleExportExcel}
+            disabled={exportingExcel}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary hover:bg-surface-600 transition-all text-sm font-medium disabled:opacity-50"
+          >
+            <FileSpreadsheet size={16} />
+            {exportingExcel ? "Exporting..." : "Export Excel"}
           </button>
           <button
             onClick={openManualModal}
