@@ -110,11 +110,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-surface-900/80 backdrop-blur-xl shadow-lg shadow-black/10"
-          : "bg-surface-900/50 backdrop-blur-md"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+        ? "bg-surface-900/80 backdrop-blur-xl shadow-lg shadow-black/10"
+        : "bg-surface-900/50 backdrop-blur-md"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -150,9 +149,8 @@ export default function Navbar() {
                 Categories
                 <ChevronDown
                   size={14}
-                  className={`transition-transform duration-200 ${
-                    categoriesOpen ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform duration-200 ${categoriesOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               {categoriesOpen && (
@@ -226,17 +224,19 @@ export default function Navbar() {
               <Heart size={20} />
             </button>
 
-            <button
-              onClick={() => navigate("/cart")}
-              className="relative p-2 text-text-secondary hover:text-accent transition-colors rounded-lg hover:bg-surface-700/50"
-            >
-              <ShoppingBag size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-danger text-white text-[10px] font-bold leading-none min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
-                  {cartCount > 99 ? "99+" : cartCount}
-                </span>
-              )}
-            </button>
+            {
+              user?.role !== "admin" && <button
+                onClick={() => navigate("/cart")}
+                className="relative p-2 text-text-secondary hover:text-accent transition-colors rounded-lg hover:bg-surface-700/50"
+              >
+                <ShoppingBag size={20} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-danger text-white text-[10px] font-bold leading-none min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
+              </button>
+            }
 
             {/* Profile Dropdown */}
             <div className="relative hidden lg:block" ref={profileRef}>
@@ -321,9 +321,8 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden transition-all duration-300 overflow-hidden ${
-          mobileMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`lg:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+          }`}
       >
         <div className="bg-surface-800/95 backdrop-blur-xl border-t border-surface-600 px-4 py-4 space-y-4">
           {/* Mobile Search */}
@@ -386,7 +385,7 @@ export default function Navbar() {
               {categories.map((cat) => (
                 <Link
                   key={cat.slug}
-                      to={`/shop?category=${cat.slug}`}
+                  to={`/shop?category=${cat.slug}`}
                   onClick={closeAll}
                   className="block px-3 py-2.5 text-sm text-text-secondary hover:text-accent hover:bg-surface-700/50 rounded-lg transition-colors"
                 >
@@ -398,7 +397,7 @@ export default function Navbar() {
 
           {/* Mobile Profile */}
           <div className="border-t border-surface-600 pt-3">
-                {user ? (
+            {user ? (
               <>
                 <p className="px-3 py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider">
                   {user.name || "My Account"}

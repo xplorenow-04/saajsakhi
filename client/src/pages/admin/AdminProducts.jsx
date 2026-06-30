@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import * as XLSX from "xlsx";
 import {
   Plus,
   Pencil,
@@ -13,7 +14,8 @@ import {
   ChevronRight,
   Search,
   Package,
-  Star
+  Star,
+  FileDown
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminApi } from "../../api/admin.api";
@@ -44,6 +46,7 @@ export default function AdminProducts() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [sizeInput, setSizeInput] = useState({ size: "", stock: "" });
   const { categories, fetchCategories } = useManageCategories();
@@ -184,6 +187,35 @@ export default function AdminProducts() {
     }
   };
 
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      const res = await adminApi.getProducts({ limit: 10000 });
+      if (res.success) {
+        const allProducts = res.data?.products ?? res.data ?? [];
+        const data = allProducts.map((p) => ({
+          Name: p.name,
+          Category: p.category,
+          Price: p.price || 0,
+          Discount: p.discount ? `${p.discount}%` : "--",
+          "Total Stock": p.sizes?.reduce((sum, s) => sum + (s.stock || 0), 0) || 0,
+          Views: p.viewCount ?? 0,
+          Status: p.isActive ? "Active" : "Inactive",
+          Featured: p.isFeatured ? "Yes" : "No",
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Products");
+        XLSX.writeFile(wb, `products-${Date.now()}.xlsx`);
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error("Failed to export Excel");
+    }
+    setExporting(false);
+  };
+
   const handleSeed = async () => {
     setSeeding(true);
     const res = await adminApi.seedProducts();
@@ -224,6 +256,14 @@ export default function AdminProducts() {
             <Package size={16} className={seeding ? "animate-spin" : ""} />
             {seeding ? "Seeding..." : "Seed Products"}
           </button> */}
+          <button
+            onClick={handleExportExcel}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary hover:bg-surface-600 transition-all text-sm font-medium disabled:opacity-50"
+          >
+            <FileDown size={16} />
+            {exporting ? "Exporting..." : "Export Excel"}
+          </button>
           <button
             onClick={openCreate}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white hover:bg-accent/90 transition-all text-sm font-medium shadow-lg shadow-accent/20"
@@ -301,7 +341,7 @@ export default function AdminProducts() {
                       <span className="text-xs text-text-secondary capitalize">{product.category}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm text-text-primary">${product.price?.toFixed(2)}</span>
+                      <span className="text-sm text-text-primary">₹{product.price?.toFixed(2)}</span>
                     </td>
                     <td className="px-4 py-3">
                       {product.discount > 0 ? (
@@ -489,7 +529,7 @@ export default function AdminProducts() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Price ($)</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Price (₹)</label>
                   <input
                     type="number"
                     step="0.01"
