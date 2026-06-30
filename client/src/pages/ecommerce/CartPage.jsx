@@ -125,9 +125,9 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
 
   if (cartLoading) {
     return (
-      <div className="min-h-screen bg-surface-900">
+      <div className="min-h-screen bg-lux-bg">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-8">
               <LoadingSkeleton type="list" count={3} />
@@ -154,24 +154,25 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
   const total = subtotal - totalDiscount + deliveryCharge;
 
   return (
-    <div className="min-h-screen bg-surface-900">
+    <div className="min-h-screen bg-lux-bg">
       <Navbar />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+              <span className="section-overline">Your Bag</span>
+              <h1 className="font-display text-3xl font-bold text-lux-text">
                 Shopping Cart
               </h1>
-              <p className="text-sm text-text-muted mt-1">
-                {cartCount} item{cartCount !== 1 ? "s" : ""} in your cart
+              <p className="text-sm text-lux-muted mt-1">
+                {cartCount} item{cartCount !== 1 ? "s" : ""} in your bag
               </p>
             </div>
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 text-text-muted hover:text-accent transition-colors text-sm"
+              className="inline-flex items-center gap-2 text-lux-muted hover:text-lux-accent transition-colors text-sm font-medium"
             >
               <ArrowLeft size={16} />
               Continue Shopping
@@ -209,7 +210,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                   return (
                     <div
                       key={item._id}
-                      className={`relative bg-surface-800 border border-surface-600/30 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:border-gold-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.5)] ${
+                      className={`relative bg-lux-card border border-lux-border rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:border-lux-accent/30 hover:shadow-warm-sm shadow-card ${
                         isRemoving
                           ? "opacity-50 scale-[0.97] pointer-events-none"
                           : ""
@@ -221,7 +222,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                                 to={`/shop/${product.slug || product._id}`}
                           className="shrink-0"
                         >
-                          <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-surface-950 border border-surface-600/40">
+                          <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-lux-bg border border-lux-border">
                             <img
                               src={imageUrl}
                               alt={product.name}
@@ -239,7 +240,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                             <div className="min-w-0">
                               <Link
               to={`/shop/${product.slug || product._id}`}
-                                className="text-sm sm:text-base font-medium text-text-primary hover:text-accent transition-colors line-clamp-1"
+                                className="text-sm sm:text-base font-medium text-lux-text hover:text-lux-accent transition-colors line-clamp-1"
                               >
                                 {product.name}
                               </Link>
@@ -255,7 +256,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
 
                             {/* Price */}
                             <div className="text-right shrink-0">
-                              <p className="text-sm font-semibold text-accent">
+                              <p className="text-sm font-bold text-lux-text">
                                 {formatPrice(itemTotal)}
                               </p>
                               {discount > 0 && (
@@ -278,7 +279,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                                 max={10}
                               />
                               {isUpdating && (
-                                <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                                <div className="w-4 h-4 border-2 border-lux-accent border-t-transparent rounded-full animate-spin" />
                               )}
                             </div>
 
@@ -286,7 +287,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                             <button
                               onClick={() => handleRemoveItem(item._id)}
                               disabled={isRemoving}
-                              className="flex items-center gap-1.5 text-xs text-text-muted hover:text-danger transition-colors disabled:opacity-50"
+                              className="flex items-center gap-1.5 text-xs text-lux-muted hover:text-lux-danger transition-colors disabled:opacity-50"
                             >
                               <Trash2 size={14} />
                               Remove
@@ -303,7 +304,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                   <button
                     onClick={handleClearCart}
                     disabled={clearing}
-                    className="flex items-center gap-2 text-sm text-text-muted hover:text-danger transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 text-sm text-lux-muted hover:text-lux-danger transition-colors disabled:opacity-50"
                   >
                     <Trash2 size={14} />
                     {clearing ? "Clearing..." : "Clear Cart"}
@@ -313,35 +314,30 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="sticky top-28 bg-surface-800 border border-surface-700/50 rounded-2xl p-6 space-y-5">
-                  <h3 className="text-base font-semibold text-text-primary">
-                    Order Summary
-                  </h3>
+                <div className="sticky top-28 bg-lux-card border border-lux-border rounded-2xl p-6 space-y-5 shadow-card">
+                  <div>
+                    <span className="section-overline">Summary</span>
+                    <h3 className="font-display text-xl font-bold text-lux-text">Order Summary</h3>
+                  </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-text-muted">Subtotal</span>
-                      <span className="text-text-secondary">
+                      <span className="text-lux-muted">Subtotal</span>
+                      <span className="font-medium text-lux-text">
                         {formatPrice(subtotal)}
                       </span>
                     </div>
                     {totalDiscount > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-text-muted">Discount</span>
-                        <span className="text-success">
+                        <span className="text-lux-muted">Discount</span>
+                        <span className="text-lux-success font-medium">
                           -{formatPrice(totalDiscount)}
                         </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-text-muted">Delivery</span>
-                      <span
-                        className={
-                          deliveryCharge === 0
-                            ? "text-success"
-                            : "text-text-secondary"
-                        }
-                      >
+                      <span className="text-lux-muted">Delivery</span>
+                      <span className={deliveryCharge === 0 ? "text-lux-success font-medium" : "text-lux-text"}>
                         {deliveryCharge === 0
                           ? "Free"
                           : formatPrice(deliveryCharge)}
@@ -354,15 +350,11 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
                       </p>
                     )}
 
-                    <div className="h-px bg-surface-700" />
+                    <div className="h-px bg-lux-border" />
 
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-text-primary">
-                        Total
-                      </span>
-                      <span className="text-lg font-bold text-accent">
-                        {formatPrice(total)}
-                      </span>
+                      <span className="text-sm font-semibold text-lux-text">Total</span>
+                      <span className="text-xl font-bold text-lux-accent">{formatPrice(total)}</span>
                     </div>
                   </div>
 
@@ -380,7 +372,7 @@ ${totalDiscount > 0 ? `*Discount*: -${formatPrice(totalDiscount)}\n` : ""}${deli
 
                   <Link
                     to="/shop"
-                    className="flex items-center justify-center gap-1.5 w-full text-sm text-text-muted hover:text-accent transition-colors"
+                    className="flex items-center justify-center gap-1.5 w-full text-sm text-lux-muted hover:text-lux-accent transition-colors mt-2"
                   >
                     <ArrowLeft size={14} />
                     Continue Shopping

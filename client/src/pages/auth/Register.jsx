@@ -1,165 +1,159 @@
 import React, { useState } from 'react'
 import { userApi } from '../../api/user.api'
-import { Zap, User, AtSign, Mail, Lock, Loader2 } from 'lucide-react'
+import { User, AtSign, Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 function Register() {
-    const navigate = useNavigate()
-    const [form, setForm] = useState({ name: '', username: '', email: '', password: '' })
-    const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ name: '', username: '', email: '', password: '' })
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-    const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
 
-    const validate = () => {
-        const { name, username, email, password } = form
-        if (!name.trim() || !username.trim() || !email.trim() || !password.trim()) {
-            toast.error('All fields are required')
-            return false
-        }
-        if (name.trim().length < 2) {
-            toast.error('Name must be at least 2 characters')
-            return false
-        }
-        if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
-            toast.error('Username must be 3–20 characters and can only contain letters, numbers, and underscores')
-            return false
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-            toast.error('Enter a valid email address')
-            return false
-        }
-        if (password.length < 8) {
-            toast.error('Password must be at least 8 characters')
-            return false
-        }
-        return true
+  const validate = () => {
+    const { name, username, email, password } = form
+    if (!name.trim() || !username.trim() || !email.trim() || !password.trim()) { toast.error('All fields are required'); return false }
+    if (name.trim().length < 2) { toast.error('Name must be at least 2 characters'); return false }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) { toast.error('Username must be 3–20 characters (letters, numbers, underscores)'); return false }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { toast.error('Enter a valid email address'); return false }
+    if (password.length < 8) { toast.error('Password must be at least 8 characters'); return false }
+    return true
+  }
+
+  const register = async (e) => {
+    e.preventDefault()
+    if (!validate()) return
+    setLoading(true)
+    try {
+      const response = await userApi.registerUser({
+        name: form.name.trim(),
+        username: form.username.trim().toLowerCase(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password
+      })
+      if (response.success) {
+        toast.success('Account created! Please sign in.')
+        navigate('/login')
+      } else {
+        toast.error(response.message || 'Registration failed. Please try again.')
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    const register = async (e) => {
-        e.preventDefault()
-        if (!validate()) return
-        setLoading(true)
-        try {
-            const response = await userApi.registerUser({
-                name: form.name.trim(),
-                username: form.username.trim().toLowerCase(),
-                email: form.email.trim().toLowerCase(),
-                password: form.password
-            })
-            if (response.success) {
-                toast.success('Account created! Please sign in.')
-                navigate('/login')
-            } else {
-                toast.error(response.message || 'Registration failed. Please try again.')
-            }
-        } catch {
-            toast.error('Something went wrong. Please try again.')
-        } finally {
-            setLoading(false)
-        }
-    }
+  const fields = [
+    { id: 'register-name',     icon: User,   name: 'name',     type: 'text',     placeholder: 'Your full name',         autoComplete: 'name' },
+    { id: 'register-username', icon: AtSign,  name: 'username', type: 'text',     placeholder: 'Choose a username',      autoComplete: 'username' },
+    { id: 'register-email',    icon: Mail,    name: 'email',    type: 'email',    placeholder: 'your@email.com',         autoComplete: 'email' },
+  ]
 
-    return (
-        <div className="min-h-screen w-full bg-surface-900 flex items-center justify-center px-4 relative overflow-hidden">
-            <div className="absolute -top-[10%] left-[30%] w-[500px] h-[500px] rounded-full pointer-events-none bg-accent/10 blur-[80px]" />
-            <div className="absolute -bottom-[10%] right-[20%] w-[400px] h-[400px] rounded-full pointer-events-none bg-violet/10 blur-[80px]" />
-
-            <div className="relative w-full max-w-md bg-surface-800 border border-white/[0.06] rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent" />
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }}
-                />
-
-                <div className="flex flex-col items-center pt-12 pb-8 px-8 relative z-10">
-                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl mb-5 animate-float"
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 24px rgba(99,102,241,0.5)' }}>
-                        <Zap size={24} color="#fff" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-text-primary tracking-tight">Create an account</h1>
-                    <p className="text-sm text-text-dim mt-2">Join and start shopping instantly</p>
-                </div>
-
-                <div className="h-px bg-white/[0.06] mx-8" />
-
-                <form className="flex flex-col gap-4 px-8 pt-8 pb-10 relative z-10" onSubmit={register} noValidate>
-                    <div className="relative group">
-                        <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dim pointer-events-none transition-colors group-focus-within:text-accent-light" />
-                        <input
-                            id="register-name"
-                            className="w-full bg-surface-700 border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-text-primary text-sm outline-none transition-all duration-200 placeholder:text-text-dim focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
-                            type="text"
-                            placeholder="Enter your full name"
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            autoComplete="name"
-                        />
-                    </div>
-
-                    <div className="relative group">
-                        <AtSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dim pointer-events-none transition-colors group-focus-within:text-accent-light" />
-                        <input
-                            id="register-username"
-                            className="w-full bg-surface-700 border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-text-primary text-sm outline-none transition-all duration-200 placeholder:text-text-dim focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
-                            type="text"
-                            placeholder="Choose a username"
-                            name="username"
-                            value={form.username}
-                            onChange={handleChange}
-                            autoComplete="username"
-                        />
-                    </div>
-
-                    <div className="relative group">
-                        <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dim pointer-events-none transition-colors group-focus-within:text-accent-light" />
-                        <input
-                            id="register-email"
-                            className="w-full bg-surface-700 border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-text-primary text-sm outline-none transition-all duration-200 placeholder:text-text-dim focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
-                            type="email"
-                            placeholder="Enter your email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            autoComplete="email"
-                        />
-                    </div>
-
-                    <div className="relative group">
-                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dim pointer-events-none transition-colors group-focus-within:text-accent-light" />
-                        <input
-                            id="register-password"
-                            className="w-full bg-surface-700 border border-white/[0.06] rounded-xl py-3.5 pl-11 pr-4 text-text-primary text-sm outline-none transition-all duration-200 placeholder:text-text-dim focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.12)]"
-                            type="password"
-                            placeholder="Create a password (min 8 chars)"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            autoComplete="new-password"
-                        />
-                    </div>
-
-                    <button
-                        id="register-submit"
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3.5 mt-2 rounded-xl text-white text-sm font-semibold tracking-wide cursor-pointer transition-all duration-200 hover:shadow-[0_8px_24px_rgba(99,102,241,0.45)] hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.4)' }}
-                    >
-                        {loading && <Loader2 size={16} className="animate-spin" />}
-                        {loading ? 'Creating Account…' : 'Create Account'}
-                    </button>
-
-                    <p className="text-center text-xs text-text-dim mt-2">
-                        Already have an account?{' '}
-                        <Link to="/login" className="text-accent-light hover:text-violet-light transition-colors duration-150 font-medium">
-                            Sign in
-                        </Link>
-                    </p>
-                </form>
-            </div>
+  return (
+    <div className="min-h-screen bg-lux-bg flex">
+      {/* Left — Brand image panel */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop"
+          alt="Saajsakhee Collection"
+          className="w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-lux-text/50 via-lux-text/10 to-transparent" />
+        <div className="absolute bottom-12 left-12 right-12">
+          <h2 className="font-display text-4xl font-bold text-white leading-tight mb-3">
+            Join the<br />Saajsakhee Family
+          </h2>
+          <p className="text-white/70 text-sm">Create your account and unlock exclusive access to curated fashion.</p>
         </div>
-    )
+        <div className="absolute top-10 left-10">
+          <p className="font-display text-2xl font-bold tracking-[0.15em] text-white">SAAJSAKHEE</p>
+          <p className="text-[9px] tracking-[0.35em] uppercase text-white/50 font-medium">Women</p>
+        </div>
+      </div>
+
+      {/* Right — Form panel */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md space-y-7">
+          <div>
+            <Link to="/" className="font-display text-xl font-bold tracking-[0.12em] text-lux-text lg:hidden block mb-8">
+              SAAJSAKHEE
+            </Link>
+            <h1 className="font-display text-3xl font-bold text-lux-text">Create account</h1>
+            <p className="text-lux-muted text-sm mt-2">Join and start shopping instantly</p>
+          </div>
+
+          <form className="space-y-4" onSubmit={register} noValidate>
+            {fields.map(({ id, icon: Icon, name, type, placeholder, autoComplete }) => (
+              <div key={id} className="space-y-1.5">
+                <label className="block text-xs font-semibold text-lux-text uppercase tracking-wider capitalize">{name}</label>
+                <div className="relative">
+                  <Icon size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-lux-dim pointer-events-none" />
+                  <input
+                    id={id}
+                    className="luxury-input pl-10"
+                    type={type}
+                    placeholder={placeholder}
+                    name={name}
+                    value={form[name]}
+                    onChange={handleChange}
+                    autoComplete={autoComplete}
+                  />
+                </div>
+              </div>
+            ))}
+
+            {/* Password field */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-lux-text uppercase tracking-wider">Password</label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-lux-dim pointer-events-none" />
+                <input
+                  id="register-password"
+                  className="luxury-input pl-10 pr-12"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Min 8 characters"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                />
+                <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-4 top-1/2 -translate-y-1/2 text-lux-dim hover:text-lux-muted transition-colors">
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              id="register-submit"
+              type="submit"
+              disabled={loading}
+              className="btn-luxury w-full justify-center gap-2 mt-2"
+            >
+              {loading && <Loader2 size={15} className="animate-spin" />}
+              {loading ? 'Creating Account…' : 'Create Account'}
+              {!loading && <ArrowRight size={15} />}
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-lux-muted">
+            Already have an account?{' '}
+            <Link to="/login" className="font-semibold text-lux-accent hover:text-lux-hover transition-colors">
+              Sign in
+            </Link>
+          </p>
+
+          <div className="border-t border-lux-border pt-5 text-center">
+            <Link to="/" className="text-xs text-lux-dim hover:text-lux-muted transition-colors">
+              ← Back to store
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-export default Register
+export default Register

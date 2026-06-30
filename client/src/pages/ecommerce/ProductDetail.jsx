@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Minus,
@@ -123,9 +123,9 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface-900">
+      <div className="min-h-screen bg-lux-bg">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <LoadingSkeleton type="detail" count={1} />
           </div>
@@ -137,21 +137,21 @@ export default function ProductDetail() {
 
   if (error && !product) {
     return (
-      <div className="min-h-screen bg-surface-900">
+      <div className="min-h-screen bg-lux-bg">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="w-20 h-20 rounded-full bg-surface-800 border border-surface-700/50 flex items-center justify-center mb-5">
+              <div className="w-20 h-20 rounded-full bg-lux-card border border-lux-border/50 flex items-center justify-center mb-5">
                 <AlertTriangle size={36} className="text-warning" />
               </div>
-              <h2 className="text-xl font-semibold text-text-primary mb-2">
+              <h2 className="text-xl font-semibold text-lux-text mb-2">
                 Product Not Found
               </h2>
-              <p className="text-text-muted text-sm mb-6">{error}</p>
+              <p className="text-lux-muted text-sm mb-6">{error}</p>
               <Link
                 to="/shop"
-                className="bg-accent hover:bg-accent/90 text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
+                className="bg-lux-accent hover:bg-lux-accent/90 text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
               >
                 Browse Products
               </Link>
@@ -199,25 +199,25 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-900">
+    <div className="min-h-screen bg-lux-bg">
       <Navbar />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-text-muted mb-8">
-            <Link to="/ecommerce" className="hover:text-accent transition-colors">
+          <nav className="flex items-center gap-2 text-sm text-lux-muted mb-8">
+            <Link to="/ecommerce" className="hover:text-lux-accent transition-colors">
               Home
             </Link>
             <span>/</span>
             <Link
               to="/shop"
-              className="hover:text-accent transition-colors"
+              className="hover:text-lux-accent transition-colors"
             >
               Shop
             </Link>
             <span>/</span>
-            <span className="text-text-secondary truncate max-w-[200px]">
+            <span className="text-lux-muted truncate max-w-[200px]">
               {product.name}
             </span>
           </nav>
@@ -225,7 +225,7 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-surface-800 border border-surface-700/50 group">
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-lux-card border border-lux-border/50 group">
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
@@ -240,10 +240,10 @@ export default function ProductDetail() {
                   </div>
                 )}
                 <div className="absolute top-4 right-4 flex flex-col gap-2">
-                  <button className="w-10 h-10 rounded-full bg-surface-900/70 backdrop-blur-sm flex items-center justify-center text-text-muted hover:text-accent hover:bg-surface-900 transition-all">
+                  <button className="w-10 h-10 rounded-full bg-lux-bg/70 backdrop-blur-sm flex items-center justify-center text-lux-muted hover:text-lux-accent hover:bg-lux-bg transition-all">
                     <Heart size={18} />
                   </button>
-                  <button className="w-10 h-10 rounded-full bg-surface-900/70 backdrop-blur-sm flex items-center justify-center text-text-muted hover:text-accent hover:bg-surface-900 transition-all">
+                  <button className="w-10 h-10 rounded-full bg-lux-bg/70 backdrop-blur-sm flex items-center justify-center text-lux-muted hover:text-lux-accent hover:bg-lux-bg transition-all">
                     <Share2 size={18} />
                   </button>
                 </div>
@@ -257,8 +257,8 @@ export default function ProductDetail() {
                       key={idx}
                       onClick={() => setSelectedImage(idx)}
                       className={`shrink-0 w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${selectedImage === idx
-                          ? "border-accent ring-1 ring-accent/30"
-                          : "border-surface-700/50 hover:border-surface-500"
+                          ? "border-lux-accent ring-1 ring-lux-accent/30"
+                          : "border-lux-border/50 hover:border-surface-500"
                         }`}
                     >
                       <img
@@ -287,18 +287,18 @@ export default function ProductDetail() {
               )}
 
               {/* Name */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lux-text leading-tight">
                 {product.name}
               </h1>
 
               {/* Price */}
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-accent">
+                <span className="text-3xl font-bold text-lux-accent">
                   {formatPrice(discountedPrice)}
                 </span>
                 {discount > 0 && (
                   <>
-                    <span className="text-lg text-text-muted line-through">
+                    <span className="text-lg text-lux-muted line-through">
                       {formatPrice(product.price)}
                     </span>
                     <span className="text-sm font-semibold text-success bg-success/10 px-2.5 py-0.5 rounded-full">
@@ -309,7 +309,7 @@ export default function ProductDetail() {
               </div>
 
               {/* Description */}
-              <p className="text-text-secondary leading-relaxed text-sm">
+              <p className="text-lux-muted leading-relaxed text-sm">
                 {product.description || "No description available."}
               </p>
 
@@ -317,10 +317,10 @@ export default function ProductDetail() {
               {sizes.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-text-primary">
+                    <h3 className="text-sm font-semibold text-lux-text">
                       Select Size
                     </h3>
-                    <button onClick={() => setSizeGuideOpen(true)} className="flex items-center gap-1.5 text-xs text-accent hover:text-accent-light transition-colors">
+                    <button onClick={() => setSizeGuideOpen(true)} className="flex items-center gap-1.5 text-xs text-lux-accent hover:text-lux-accent transition-colors">
                       <Ruler size={14} />
                       Size Guide
                     </button>
@@ -341,8 +341,8 @@ export default function ProductDetail() {
                           className={`relative min-w-[52px] px-4 py-3 text-sm font-semibold rounded-xl border transition-all ${isSelected
                               ? "bg-gradient-to-r from-gold-200 to-gold-500 border-transparent text-neutral-950 shadow-[0_4px_12px_rgba(212,175,55,0.25)]"
                               : outOfStock
-                                ? "bg-surface-800/40 border-surface-600/60 text-text-dim/20 line-through cursor-not-allowed"
-                                : "bg-surface-950 border-surface-600 text-text-secondary hover:border-gold-500/40 hover:text-gold-400"
+                                ? "bg-lux-card/40 border-lux-border/60 text-lux-dim/20 line-through cursor-not-allowed"
+                                : "bg-lux-bg border-lux-border text-lux-muted hover:border-gold-500/40 hover:text-gold-400"
                             }`}
                         >
                           {sizeVal}
@@ -416,7 +416,7 @@ export default function ProductDetail() {
                   return (
                     <div
                       key={badge.text}
-                      className="flex items-center gap-2 text-xs text-text-secondary bg-surface-950 border border-surface-600/40 rounded-lg px-3 py-2.5"
+                      className="flex items-center gap-2 text-xs text-lux-muted bg-lux-bg border border-lux-border/40 rounded-lg px-3 py-2.5"
                     >
                       <BadgeIcon size={14} className="text-gold-400 shrink-0" />
                       <span>{badge.text}</span>
@@ -429,39 +429,39 @@ export default function ProductDetail() {
 
           {/* Accordion Details */}
           <div className="mt-12 lg:mt-16 max-w-3xl">
-            <div className="border-t border-surface-700/50">
+            <div className="border-t border-lux-border/50">
               {accordionItems.map((item) => {
                 const isOpen = openAccordion === item.id;
                 return (
                   <div
                     key={item.id}
-                    className="border-b border-surface-700/50"
+                    className="border-b border-lux-border/50"
                   >
                     <button
                       onClick={() =>
                         setOpenAccordion(isOpen ? null : item.id)
                       }
-                      className="w-full flex items-center justify-between py-5 text-left hover:bg-surface-800/30 px-1 transition-colors rounded-lg"
+                      className="w-full flex items-center justify-between py-5 text-left hover:bg-lux-card/30 px-1 transition-colors rounded-lg"
                     >
-                      <span className="text-sm font-semibold text-text-primary">
+                      <span className="text-sm font-semibold text-lux-text">
                         {item.title}
                       </span>
                       {isOpen ? (
-                        <ChevronUp size={16} className="text-text-muted" />
+                        <ChevronUp size={16} className="text-lux-muted" />
                       ) : (
-                        <ChevronDown size={16} className="text-text-muted" />
+                        <ChevronDown size={16} className="text-lux-muted" />
                       )}
                     </button>
                     {isOpen && (
                       <div className="pb-5 px-1 animate-slide-down">
-                        <p className="text-sm text-text-secondary leading-relaxed">
+                        <p className="text-sm text-lux-muted leading-relaxed">
                           {item.id === "description"
                             ? (product.description ||
                               "No description available.")
                             : item.id === "care"
                               ? (product.careInstructions ||
                                 "Dry clean recommended. Do not bleach. Iron on low heat. Store in a cool, dry place away from direct sunlight.")
-                              : "Free shipping on orders above ₹999. Orders are processed within 1-2 business days. Standard delivery takes 3-7 business days. Express delivery available at checkout."}
+                              : "Free shipping on orders above â‚¹999. Orders are processed within 1-2 business days. Standard delivery takes 3-7 business days. Express delivery available at checkout."}
                         </p>
                       </div>
                     )}
@@ -477,20 +477,20 @@ export default function ProductDetail() {
       {sizeGuideOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSizeGuideOpen(false)} />
-          <div className="relative bg-surface-800 border border-surface-600 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-surface-600">
+          <div className="relative bg-lux-card border border-lux-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-lux-border">
               <h2 className="text-lg font-bold text-gradient-gold">Size Guide</h2>
-              <button onClick={() => setSizeGuideOpen(false)} className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-700 transition-colors">
+              <button onClick={() => setSizeGuideOpen(false)} className="p-1.5 text-lux-muted hover:text-lux-text rounded-lg hover:bg-lux-bg transition-colors">
                 <X size={18} />
               </button>
             </div>
             <div className="p-6 space-y-6">
               <div>
-                <h3 className="text-sm font-semibold text-text-primary mb-3">Women's Clothing</h3>
+                <h3 className="text-sm font-semibold text-lux-text mb-3">Women's Clothing</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-surface-600">
+                      <tr className="border-b border-lux-border">
                         <th className="text-left text-xs font-semibold text-gold-400 uppercase tracking-wider px-3 py-2">Size</th>
                         <th className="text-left text-xs font-semibold text-gold-400 uppercase tracking-wider px-3 py-2">Bust (in)</th>
                         <th className="text-left text-xs font-semibold text-gold-400 uppercase tracking-wider px-3 py-2">Waist (in)</th>
@@ -507,11 +507,11 @@ export default function ProductDetail() {
                         { size: "XXL", bust: "41-44", waist: "35-38", hips: "43-46" },
                         { size: "3XL", bust: "44-47", waist: "38-41", hips: "46-49" },
                       ].map((row) => (
-                        <tr key={row.size} className="border-b border-surface-700/50 hover:bg-surface-700/30">
-                          <td className="px-3 py-2.5 text-text-primary font-medium">{row.size}</td>
-                          <td className="px-3 py-2.5 text-text-secondary">{row.bust}</td>
-                          <td className="px-3 py-2.5 text-text-secondary">{row.waist}</td>
-                          <td className="px-3 py-2.5 text-text-secondary">{row.hips}</td>
+                        <tr key={row.size} className="border-b border-lux-border/50 hover:bg-lux-bg/30">
+                          <td className="px-3 py-2.5 text-lux-text font-medium">{row.size}</td>
+                          <td className="px-3 py-2.5 text-lux-muted">{row.bust}</td>
+                          <td className="px-3 py-2.5 text-lux-muted">{row.waist}</td>
+                          <td className="px-3 py-2.5 text-lux-muted">{row.hips}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -519,14 +519,14 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <div className="bg-surface-700/50 rounded-xl p-4 space-y-2">
-                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">How to Measure</h4>
-                <ul className="text-xs text-text-secondary space-y-1.5">
-                  <li><span className="text-text-primary font-medium">Bust:</span> Measure around the fullest part of your bust, keeping the tape horizontal.</li>
-                  <li><span className="text-text-primary font-medium">Waist:</span> Measure around the narrowest part of your natural waist.</li>
-                  <li><span className="text-text-primary font-medium">Hips:</span> Measure around the fullest part of your hips, keeping the tape horizontal.</li>
+              <div className="bg-lux-bg/50 rounded-xl p-4 space-y-2">
+                <h4 className="text-xs font-semibold text-lux-muted uppercase tracking-wider">How to Measure</h4>
+                <ul className="text-xs text-lux-muted space-y-1.5">
+                  <li><span className="text-lux-text font-medium">Bust:</span> Measure around the fullest part of your bust, keeping the tape horizontal.</li>
+                  <li><span className="text-lux-text font-medium">Waist:</span> Measure around the narrowest part of your natural waist.</li>
+                  <li><span className="text-lux-text font-medium">Hips:</span> Measure around the fullest part of your hips, keeping the tape horizontal.</li>
                 </ul>
-                <p className="text-xs text-text-muted mt-2">If your measurements fall between sizes, we recommend sizing up for a comfortable fit.</p>
+                <p className="text-xs text-lux-muted mt-2">If your measurements fall between sizes, we recommend sizing up for a comfortable fit.</p>
               </div>
             </div>
           </div>
@@ -537,3 +537,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+

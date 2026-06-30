@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import {
   Users,
   Package,
@@ -24,12 +24,12 @@ const statCards = [
   { key: "totalUsers", label: "Total Users", icon: Users, color: "from-gold-300 to-gold-500" },
   { key: "totalProducts", label: "Total Products", icon: Package, color: "from-gold-400 to-gold-600" },
   { key: "totalOrders", label: "Total Orders", icon: ShoppingCart, color: "from-gold-500 to-gold-700" },
-  { key: "monthlyRevenue", label: "Monthly Revenue", icon: DollarSign, prefix: "₹", color: "from-gold-200 to-gold-400" },
+  { key: "monthlyRevenue", label: "Monthly Revenue", icon: DollarSign, prefix: "â‚¹", color: "from-gold-200 to-gold-400" },
 ];
 
 function StatSkeleton() {
   return (
-    <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600 animate-pulse space-y-3">
+    <div className="p-5 rounded-2xl bg-lux-card border border-lux-border animate-pulse space-y-3">
       <div className="flex items-center justify-between">
         <div className="w-10 h-10 rounded-xl bg-surface-600" />
         <div className="w-16 h-4 rounded bg-surface-600" />
@@ -42,7 +42,7 @@ function StatSkeleton() {
 
 function ChartSkeleton() {
   return (
-    <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600 animate-pulse space-y-4">
+    <div className="p-5 rounded-2xl bg-lux-card border border-lux-border animate-pulse space-y-4">
       <div className="w-32 h-5 rounded bg-surface-600" />
       <div className="h-48 rounded-lg bg-surface-600" />
     </div>
@@ -105,13 +105,13 @@ export default function AdminDashboard() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
-          <p className="text-sm text-text-muted mt-0.5">Overview of your store</p>
+          <h1 className="text-2xl font-bold text-lux-text">Dashboard</h1>
+          <p className="text-sm text-lux-muted mt-0.5">Overview of your store</p>
         </div>
         <button
           onClick={() => fetchData(true)}
           disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800 border border-gold-500/20 text-gold-400 hover:text-gold-300 hover:border-gold-500/40 transition-all text-sm font-medium disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lux-card border border-gold-500/20 text-gold-400 hover:text-gold-300 hover:border-gold-500/40 transition-all text-sm font-medium disabled:opacity-50"
         >
           <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
           {refreshing ? "Refreshing..." : "Refresh"}
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
             return (
               <div
                 key={card.key}
-                className="relative p-5 rounded-2xl bg-surface-800 border border-surface-600 overflow-hidden group hover:border-surface-500 transition-colors"
+                className="relative p-5 rounded-2xl bg-lux-card border border-lux-border overflow-hidden group hover:border-surface-500 transition-colors"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 -translate-y-6 translate-x-6 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 opacity-[0.08] group-hover:opacity-[0.12] transition-opacity blur-2xl pointer-events-none" />
                 <div className="flex items-center justify-between mb-4">
@@ -158,8 +158,8 @@ export default function AdminDashboard() {
                     </span>
                   )}
                 </div>
-                <p className="text-2xl font-bold text-text-primary">{formatted}</p>
-                <p className="text-sm text-text-muted mt-1">{card.label}</p>
+                <p className="text-2xl font-bold text-lux-text">{formatted}</p>
+                <p className="text-sm text-lux-muted mt-1">{card.label}</p>
               </div>
             );
           })}
@@ -168,8 +168,8 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {loading ? <ChartSkeleton /> : (
-          <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600">
-            <h2 className="text-base font-semibold text-text-primary mb-4">Orders by Day (Last 7)</h2>
+          <div className="p-5 rounded-2xl bg-lux-card border border-lux-border">
+            <h2 className="text-base font-semibold text-lux-text mb-4">Orders by Day (Last 7)</h2>
             {ordersByDay.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={ordersByDay} barCategoryGap="30%">
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-text-muted text-sm">
+              <div className="h-[200px] flex items-center justify-center text-lux-muted text-sm">
                 No order data available
               </div>
             )}
@@ -224,8 +224,8 @@ export default function AdminDashboard() {
         )}
 
         {loading ? <ChartSkeleton /> : (
-          <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600">
-            <h2 className="text-base font-semibold text-text-primary mb-4">Monthly Revenue</h2>
+          <div className="p-5 rounded-2xl bg-lux-card border border-lux-border">
+            <h2 className="text-base font-semibold text-lux-text mb-4">Monthly Revenue</h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart
                 data={(() => {
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                   tickLine={false}
                   tick={{ fill: "#6b7280", fontSize: 11 }}
                   width={40}
-                  tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
+                  tickFormatter={(v) => v >= 1000 ? `â‚¹${(v / 1000).toFixed(0)}k` : `â‚¹${v}`}
                 />
                 <Tooltip
                   contentStyle={{
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
                   }}
                   labelStyle={{ color: "#DFB86C", fontWeight: 600, marginBottom: 4 }}
                   itemStyle={{ color: "#DFB86C" }}
-                  formatter={(value) => [`₹${Number(value).toLocaleString()}`, "Revenue"]}
+                  formatter={(value) => [`â‚¹${Number(value).toLocaleString()}`, "Revenue"]}
                 />
                 <Bar
                   dataKey="revenue"
@@ -283,12 +283,12 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600">
-          <h2 className="text-base font-semibold text-text-primary mb-4">Recent Orders</h2>
+        <div className="p-5 rounded-2xl bg-lux-card border border-lux-border">
+          <h2 className="text-base font-semibold text-lux-text mb-4">Recent Orders</h2>
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 rounded-lg bg-surface-700 animate-pulse" />
+                <div key={i} className="h-12 rounded-lg bg-lux-bg animate-pulse" />
               ))}
             </div>
           ) : recentOrders.length > 0 ? (
@@ -296,19 +296,19 @@ export default function AdminDashboard() {
               {recentOrders.slice(0, 5).map((order) => (
                 <div
                   key={order._id}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-surface-700/50 hover:bg-surface-700 transition-colors"
+                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-lux-bg/50 hover:bg-lux-bg transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xs font-mono text-text-muted truncate">
+                    <span className="text-xs font-mono text-lux-muted truncate">
                       #{order._id?.slice(-8)}
                     </span>
-                    <span className="text-sm text-text-secondary truncate">
+                    <span className="text-sm text-lux-muted truncate">
                       {order.user?.name || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm font-medium text-text-primary">
-                      ₹{order.finalAmount?.toFixed(2) ?? "0.00"}
+                    <span className="text-sm font-medium text-lux-text">
+                      â‚¹{order.finalAmount?.toFixed(2) ?? "0.00"}
                     </span>
                     <span
                       className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
@@ -330,16 +330,16 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-text-muted text-sm">No orders yet</div>
+            <div className="text-center py-8 text-lux-muted text-sm">No orders yet</div>
           )}
         </div>
 
-        <div className="p-5 rounded-2xl bg-surface-800 border border-surface-600">
-          <h2 className="text-base font-semibold text-text-primary mb-4">Most Viewed Products</h2>
+        <div className="p-5 rounded-2xl bg-lux-card border border-lux-border">
+          <h2 className="text-base font-semibold text-lux-text mb-4">Most Viewed Products</h2>
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 rounded-lg bg-surface-700 animate-pulse" />
+                <div key={i} className="h-16 rounded-lg bg-lux-bg animate-pulse" />
               ))}
             </div>
           ) : topProducts.length > 0 ? (
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                 {topProducts.map((product, idx) => (
                   <div
                     key={product._id || idx}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-700/50 hover:bg-surface-700 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl bg-lux-bg/50 hover:bg-lux-bg transition-colors"
                   >
                     <div className="w-10 h-10 rounded-lg bg-surface-600 flex items-center justify-center overflow-hidden shrink-0">
                       {product.images?.[0]?.url ? (
@@ -365,15 +365,15 @@ export default function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Eye size={16} className="text-text-muted" />
+                        <Eye size={16} className="text-lux-muted" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">
+                      <p className="text-sm font-medium text-lux-text truncate">
                         {product.name}
                       </p>
-                      <p className="text-xs text-text-muted">
-                        ₹{product.price?.toFixed(2)} &middot; {product.viewCount ?? 0} views
+                      <p className="text-xs text-lux-muted">
+                        â‚¹{product.price?.toFixed(2)} &middot; {product.viewCount ?? 0} views
                       </p>
                     </div>
                   </div>
@@ -381,7 +381,7 @@ export default function AdminDashboard() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-text-muted text-sm">
+            <div className="text-center py-8 text-lux-muted text-sm">
               No product data available
             </div>
           )}
@@ -390,3 +390,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Package,
@@ -29,8 +29,8 @@ const fallbackImage =
 
 const statusConfig = {
   pending: { label: "Pending", color: "text-warning bg-warning/10 border-warning/20" },
-  confirmed: { label: "Confirmed", color: "text-accent bg-accent/10 border-accent/20" },
-  processing: { label: "Processing", color: "text-accent bg-accent/10 border-accent/20" },
+  confirmed: { label: "Confirmed", color: "text-lux-accent bg-lux-accent/10 border-lux-accent/20" },
+  processing: { label: "Processing", color: "text-lux-accent bg-lux-accent/10 border-lux-accent/20" },
   delivered: { label: "Delivered", color: "text-success bg-success/10 border-success/20" },
   cancelled: { label: "Cancelled", color: "text-danger bg-danger/10 border-danger/20" },
 };
@@ -104,17 +104,17 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-900">
+    <div className="min-h-screen bg-lux-bg">
       <Navbar />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-lux-text">
               My Orders
             </h1>
             {!loading && (
-              <p className="text-sm text-text-muted mt-1">
+              <p className="text-sm text-lux-muted mt-1">
                 {totalOrders} order{totalOrders !== 1 ? "s" : ""} placed
               </p>
             )}
@@ -146,13 +146,13 @@ export default function OrdersPage() {
                   return (
                     <div
                       key={orderId}
-                      className="bg-surface-800 border border-surface-600/30 rounded-2xl overflow-hidden transition-all duration-300 hover:border-gold-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+                      className="bg-lux-card border border-lux-border/30 rounded-2xl overflow-hidden transition-all duration-300 hover:border-gold-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                     >
                       <div
                         onClick={() =>
                           setExpandedOrder(isExpanded ? null : orderId)
                         }
-                        className="p-4 sm:p-6 cursor-pointer hover:bg-surface-700/20 transition-colors"
+                        className="p-4 sm:p-6 cursor-pointer hover:bg-lux-bg/20 transition-colors"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                           <div className="w-10 h-10 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center shrink-0">
@@ -161,7 +161,7 @@ export default function OrdersPage() {
 
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                              <p className="text-sm font-medium text-text-primary truncate">
+                              <p className="text-sm font-medium text-lux-text truncate">
                                 Order #{orderId?.slice(-8).toUpperCase()}
                               </p>
                               <span
@@ -171,20 +171,20 @@ export default function OrdersPage() {
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
-                              <span className="text-xs text-text-muted flex items-center gap-1">
+                              <span className="text-xs text-lux-muted flex items-center gap-1">
                                 <Clock size={12} />
                                 {formatDate(order.createdAt)}
                               </span>
-                              <span className="text-xs text-text-muted">
+                              <span className="text-xs text-lux-muted">
                                 {items.length} item{items.length !== 1 ? "s" : ""}
                               </span>
-                              <span className="text-sm font-semibold text-accent">
+                              <span className="text-sm font-semibold text-lux-accent">
                                 {formatPrice(totalAmount)}
                               </span>
                             </div>
                           </div>
 
-                          <button className="text-text-muted hover:text-accent transition-colors">
+                          <button className="text-lux-muted hover:text-lux-accent transition-colors">
                             {isExpanded ? (
                               <ChevronUp size={20} />
                             ) : (
@@ -195,10 +195,10 @@ export default function OrdersPage() {
                       </div>
 
                       {isExpanded && (
-                        <div className="border-t border-surface-700/50 animate-slide-down">
+                        <div className="border-t border-lux-border/50 animate-slide-down">
                           <div className="p-4 sm:p-6 space-y-5">
                             <div className="space-y-3">
-                              <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+                              <h4 className="text-xs font-semibold text-lux-muted uppercase tracking-wider">
                                 Items
                               </h4>
                               {items.map((item, idx) => {
@@ -208,7 +208,7 @@ export default function OrdersPage() {
                                     key={idx}
                                     className="flex items-center gap-3"
                                   >
-                                    <div className="w-12 h-14 rounded-lg overflow-hidden bg-surface-950 border border-surface-600/40 shrink-0">
+                                    <div className="w-12 h-14 rounded-lg overflow-hidden bg-lux-bg border border-lux-border/40 shrink-0">
                                       <img
                                         src={imageUrl}
                                         alt={item.name}
@@ -219,16 +219,16 @@ export default function OrdersPage() {
                                       />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-sm text-text-primary truncate">
+                                      <p className="text-sm text-lux-text truncate">
                                         {item.name}
                                       </p>
-                                      <p className="text-xs text-text-muted">
+                                      <p className="text-xs text-lux-muted">
                                         Qty: {item.quantity}
                                         {item.size &&
                                           ` | Size: ${item.size}`}
                                       </p>
                                     </div>
-                                    <p className="text-sm font-medium text-accent">
+                                    <p className="text-sm font-medium text-lux-accent">
                                       {formatPrice(item.price * item.quantity)}
                                     </p>
                                   </div>
@@ -238,13 +238,13 @@ export default function OrdersPage() {
 
                             {order.shippingAddress && (
                               <div>
-                                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                                <h4 className="text-xs font-semibold text-lux-muted uppercase tracking-wider mb-2">
                                   <span className="flex items-center gap-1">
                                     <MapPin size={12} />
                                     Shipping Address
                                   </span>
                                 </h4>
-                                <p className="text-sm text-text-secondary">
+                                <p className="text-sm text-lux-muted">
                                   {order.shippingAddress.name}
                                   <br />
                                   {order.shippingAddress.address}
@@ -257,12 +257,12 @@ export default function OrdersPage() {
                               </div>
                             )}
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-surface-700/50">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-lux-border/50">
                               <div className="flex items-center gap-4 text-sm">
-                                <span className="text-text-muted">
+                                <span className="text-lux-muted">
                                   Total:
                                 </span>
-                                <span className="text-base font-bold text-accent">
+                                <span className="text-base font-bold text-lux-accent">
                                   {formatPrice(totalAmount)}
                                 </span>
                               </div>
@@ -298,7 +298,7 @@ export default function OrdersPage() {
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1}
-                    className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-600 flex items-center justify-center text-text-secondary hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="w-10 h-10 rounded-xl bg-lux-card border border-lux-border flex items-center justify-center text-lux-muted hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                   >
                     <ChevronLeft size={18} />
                   </button>
@@ -322,7 +322,7 @@ export default function OrdersPage() {
                           onClick={() => setPage(pageNum)}
                           className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${page === pageNum
                             ? "bg-gradient-to-r from-gold-200 to-gold-500 text-neutral-950 shadow-[0_4px_12px_rgba(212,175,55,0.25)] border-transparent"
-                            : "bg-surface-800 border border-surface-600 text-text-secondary hover:text-gold-400 hover:border-gold-500/30"
+                            : "bg-lux-card border border-lux-border text-lux-muted hover:text-gold-400 hover:border-gold-500/30"
                             }`}
                         >
                           {pageNum}
@@ -336,7 +336,7 @@ export default function OrdersPage() {
                       setPage((p) => Math.min(totalPages, p + 1))
                     }
                     disabled={page >= totalPages}
-                    className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-600 flex items-center justify-center text-text-secondary hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="w-10 h-10 rounded-xl bg-lux-card border border-lux-border flex items-center justify-center text-lux-muted hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                   >
                     <ChevronRight size={18} />
                   </button>
@@ -351,3 +351,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+

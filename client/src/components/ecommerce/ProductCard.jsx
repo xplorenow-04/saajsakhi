@@ -1,20 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, Eye } from "lucide-react";
+import { ShoppingBag, Heart, Eye, Tag } from "lucide-react";
 import toast from "react-hot-toast";
 import { useEcommerceStore } from "../../store/useEcommerceStore";
 import { userAuthStore } from "../../store/userStore";
-import LoadingSkeleton from "./LoadingSkeleton";
 
 const fallbackImage =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' fill='%23333'%3E%3Crect width='400' height='500'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='16'%3ENo Image%3C/text%3E%3C/svg%3E";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' fill='%23F0E6DF'%3E%3Crect width='400' height='500'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23C9B8AB' font-size='16' font-family='serif'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 const formatPrice = (price) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(price);
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(price);
 
 export default function ProductCard({ product, loading = false }) {
   const navigate = useNavigate();
@@ -22,45 +17,38 @@ export default function ProductCard({ product, loading = false }) {
   const user = userAuthStore((s) => s.user);
   const [selectedSize, setSelectedSize] = useState(null);
   const [adding, setAdding] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
 
   if (loading) {
-    return <LoadingSkeleton type="card" count={1} />;
+    return (
+      <div className="bg-lux-card rounded-2xl border border-lux-border overflow-hidden shadow-card animate-pulse">
+        <div className="aspect-[4/5] bg-lux-warm shimmer" />
+        <div className="p-4 space-y-3">
+          <div className="h-3 bg-lux-border rounded-full w-1/3" />
+          <div className="h-4 bg-lux-border rounded-full w-4/5" />
+          <div className="h-4 bg-lux-border rounded-full w-3/5" />
+          <div className="h-3 bg-lux-border rounded-full w-2/4" />
+        </div>
+      </div>
+    );
   }
 
-  const {
-    _id,
-    name,
-    slug,
-    price,
-    discount = 0,
-    images = [],
-    sizes = [],
-    category = "",
-  } = product;
-
+  const { _id, name, slug, price, discount = 0, images = [], sizes = [], category = "" } = product;
   const discountedPrice = discount > 0 ? price - (price * discount) / 100 : price;
   const displayImage = images?.[0]?.url || images?.[0] || fallbackImage;
-  const displayCategory =
-    typeof category === "object" ? category?.name : category;
-
+  const displayCategory = typeof category === "object" ? category?.name : category;
   const defaultSize = selectedSize || sizes?.[0]?.size || sizes?.[0] || null;
 
   const handleAddToCart = async (e) => {
     if (e) e.preventDefault();
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    if (!defaultSize) {
-      toast.error("Please select a size");
-      return;
-    }
+    if (!user) { navigate("/login"); return; }
+    if (!defaultSize) { toast.error("Please select a size"); return; }
     setAdding(true);
     try {
       await addToCart(_id, defaultSize, 1);
-      toast.success("Added to cart!");
+      toast.success("Added to bag!");
     } catch {
-      toast.error("Failed to add to cart");
+      toast.error("Failed to add to bag");
     } finally {
       setAdding(false);
     }
@@ -69,90 +57,99 @@ export default function ProductCard({ product, loading = false }) {
   return (
     <Link
       to={`/shop/${slug || _id}`}
-      className="group block bg-surface-800 rounded-xl overflow-hidden border border-surface-600/30 hover:border-gold-500/30 transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:shadow-[0_8px_30px_rgba(212,175,55,0.06)] hover:-translate-y-1"
+      className="group block bg-lux-card rounded-2xl overflow-hidden border border-lux-border shadow-card hover:shadow-card-hover hover:-translate-y-1.5 transition-all duration-400"
     >
-      {/* Image Container */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-surface-700">
+      {/* Image */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-lux-bg">
         <img
           src={displayImage}
           alt={name || "Product"}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-          onError={(e) => {
-            e.target.src = fallbackImage;
-          }}
+          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+          style={{ "--tw-scale-x": "1.08", "--tw-scale-y": "1.08" }}
+          onError={(e) => { e.target.src = fallbackImage; }}
         />
 
-        {/* Discount Badge */}
-        {discount > 0 && (
-          <div className="absolute top-3 left-3 bg-danger text-white text-[11px] font-bold px-2.5 py-1 rounded-md shadow-lg">
-            -{Math.round(discount)}%
-          </div>
-        )}
-
-        {/* Quick Actions Overlay */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-all duration-350 flex items-center justify-center gap-3">
-          <button
-            onClick={handleAddToCart}
-            disabled={adding || !defaultSize}
-            className="bg-gradient-to-r from-gold-200 to-gold-500 text-neutral-950 p-3 rounded-full hover:from-gold-300 hover:to-gold-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg active:scale-95"
-          >
-            <ShoppingBag size={18} strokeWidth={2.5} />
-          </button>
-          <div className="bg-surface-800/80 backdrop-blur-sm border border-surface-600 text-gold-400 p-3 rounded-full hover:bg-surface-700 transition-all duration-200 shadow-lg cursor-pointer">
-            <Eye size={18} />
-          </div>
-        </div>
-
-        {/* Category Tag */}
-        {displayCategory && (
-          <div className="absolute top-3 right-3 bg-surface-950/80 backdrop-blur-sm border border-gold-500/20 text-gold-400 text-[10px] font-semibold px-2.5 py-1 rounded-md uppercase tracking-widest">
-            {displayCategory}
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {/* Product Name */}
-        <h3 className="text-sm font-medium text-text-primary leading-snug line-clamp-2 group-hover:text-accent transition-colors">
-          {name || "Unnamed Product"}
-        </h3>
-
-        {/* Price */}
-        <div className="flex items-center gap-2.5">
-          <span className="text-base font-bold text-accent">
-            {formatPrice(discountedPrice)}
-          </span>
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {discount > 0 && (
-            <span className="text-sm text-text-muted line-through">
-              {formatPrice(price)}
+            <span className="bg-lux-danger text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+              -{Math.round(discount)}% OFF
+            </span>
+          )}
+          {!discount && (
+            <span className="bg-lux-text text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm tracking-wider">
+              NEW
             </span>
           )}
         </div>
 
-        {/* Size Options */}
+        {/* Wishlist */}
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setWishlisted((w) => !w); }}
+          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-warm-sm transition-all duration-200 hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
+          aria-label="Wishlist"
+        >
+          <Heart
+            size={14}
+            className={wishlisted ? "text-lux-danger fill-lux-danger" : "text-lux-muted"}
+          />
+        </button>
+
+        {/* Quick Actions Overlay */}
+        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out p-3 flex gap-2">
+          <button
+            onClick={handleAddToCart}
+            disabled={adding || !defaultSize}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-lux-text hover:bg-lux-accent text-white text-xs font-semibold py-3 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          >
+            <ShoppingBag size={14} />
+            {adding ? "Adding…" : "Add to Bag"}
+          </button>
+          <div className="bg-white/95 text-lux-muted hover:text-lux-accent p-3 rounded-xl transition-colors cursor-pointer shadow-lg">
+            <Eye size={14} />
+          </div>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className="p-4 space-y-2.5">
+        {displayCategory && (
+          <p className="text-[10px] font-semibold text-lux-accent uppercase tracking-[0.12em]">{displayCategory}</p>
+        )}
+
+        <h3 className="text-sm font-medium text-lux-text leading-snug line-clamp-2 group-hover:text-lux-accent transition-colors duration-200">
+          {name || "Unnamed Product"}
+        </h3>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-base font-bold text-lux-text">
+            {formatPrice(discountedPrice)}
+          </span>
+          {discount > 0 && (
+            <span className="text-xs text-lux-dim line-through">{formatPrice(price)}</span>
+          )}
+        </div>
+
+        {/* Size pills */}
         {sizes && sizes.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
             {sizes.map((s) => {
               const sizeValue = s?.size || s;
-              const isSelected = defaultSize === sizeValue;
+              const isSelected = (selectedSize || sizes?.[0]?.size || sizes?.[0]) === sizeValue;
               const outOfStock = s?.quantity !== undefined && s.quantity === 0;
               return (
                 <button
                   key={sizeValue}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (!outOfStock) setSelectedSize(sizeValue);
-                  }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!outOfStock) setSelectedSize(sizeValue); }}
                   disabled={outOfStock}
-                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-md border transition-all ${
+                  className={`px-2.5 py-1 text-[10px] font-semibold rounded-lg border transition-all ${
                     isSelected
-                      ? "bg-gradient-to-r from-gold-200 to-gold-500 border-transparent text-neutral-950"
+                      ? "bg-lux-text border-lux-text text-white"
                       : outOfStock
-                      ? "bg-surface-800/50 border-surface-600 text-text-muted/20 line-through cursor-not-allowed"
-                      : "bg-surface-950 border-surface-600 text-text-secondary hover:border-gold-500/40 hover:text-gold-400"
+                      ? "bg-lux-bg border-lux-border text-lux-dim line-through cursor-not-allowed"
+                      : "bg-white border-lux-border text-lux-muted hover:border-lux-accent hover:text-lux-accent"
                   }`}
                 >
                   {sizeValue}
@@ -162,14 +159,14 @@ export default function ProductCard({ product, loading = false }) {
           </div>
         )}
 
-        {/* Mobile Quick Add */}
+        {/* Mobile Add to Bag */}
         <button
           onClick={handleAddToCart}
           disabled={adding || !defaultSize}
-          className="lg:hidden w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-200 via-gold-500 to-gold-600 text-neutral-950 text-sm font-bold py-2.5 rounded-lg transition-all hover:opacity-95 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="lg:hidden w-full flex items-center justify-center gap-2 bg-lux-text hover:bg-lux-accent text-white text-xs font-semibold py-3 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
         >
-          <ShoppingBag size={16} />
-          {adding ? "Adding..." : "Add to Cart"}
+          <ShoppingBag size={13} />
+          {adding ? "Adding…" : "Add to Bag"}
         </button>
       </div>
     </Link>

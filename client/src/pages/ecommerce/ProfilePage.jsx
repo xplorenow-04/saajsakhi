@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -167,9 +167,9 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface-900">
+      <div className="min-h-screen bg-lux-bg">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-32 pb-16">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <LoadingSkeleton type="detail" count={1} />
           </div>
@@ -180,24 +180,24 @@ export default function ProfilePage() {
   }
 
   const inputClass = (hasError) =>
-    `w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${
+    `w-full bg-lux-bg border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${
       hasError
         ? "border-danger focus:border-danger focus:ring-danger/30"
-        : "border-surface-600 focus:border-accent focus:ring-accent/30"
+        : "border-lux-border focus:border-lux-accent focus:ring-lux-accent/30"
     }`;
 
   return (
-    <div className="min-h-screen bg-surface-900">
+    <div className="min-h-screen bg-lux-bg">
       <Navbar />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-lux-text">
               Profile Settings
             </h1>
-            <p className="text-sm text-text-muted mt-1">
+            <p className="text-sm text-lux-muted mt-1">
               Manage your personal information and security
             </p>
           </div>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
           {/* Avatar */}
           <div className="flex items-center gap-5 mb-10">
             <div className="relative group">
-              <div className="w-20 h-20 rounded-full bg-surface-700 border-2 border-surface-600 flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 rounded-full bg-lux-bg border-2 border-lux-border flex items-center justify-center overflow-hidden">
                 {user?.avatar?.url || user?.avatar ? (
                   <img
                     src={user.avatar.url || user.avatar}
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User size={32} className="text-text-muted" />
+                  <User size={32} className="text-lux-muted" />
                 )}
               </div>
               <button className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -221,17 +221,17 @@ export default function ProfilePage() {
               </button>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-text-primary">
+              <h2 className="text-lg font-semibold text-lux-text">
                 {profileForm.name || "User"}
               </h2>
-              <p className="text-sm text-text-muted">{profileForm.email}</p>
+              <p className="text-sm text-lux-muted">{profileForm.email}</p>
             </div>
           </div>
 
           {/* Personal Info Card */}
           <form onSubmit={handleSaveProfile}>
-            <div className="bg-surface-800 border border-surface-600/30 rounded-2xl p-6 sm:p-8 space-y-6 mb-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-gold-500/20 transition-colors duration-300">
-              <h2 className="text-base font-semibold text-text-primary flex items-center gap-2">
+            <div className="bg-lux-card border border-lux-border/30 rounded-2xl p-6 sm:p-8 space-y-6 mb-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-gold-500/20 transition-colors duration-300">
+              <h2 className="text-base font-semibold text-lux-text flex items-center gap-2">
                 <User size={18} className="text-gold-400" />
                 Personal Information
               </h2>
@@ -239,13 +239,13 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">
                     Full Name
                   </label>
                   <div className="relative">
                     <User
                       size={16}
-                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                     />
                     <input
                       type="text"
@@ -259,13 +259,13 @@ export default function ProfilePage() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">
                     Email
                   </label>
                   <div className="relative">
                     <Mail
                       size={16}
-                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                     />
                     <input
                       type="email"
@@ -279,13 +279,13 @@ export default function ProfilePage() {
 
                 {/* Phone */}
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">
                     Phone
                   </label>
                   <div className="relative">
                     <Phone
                       size={16}
-                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                     />
                     <input
                       type="tel"
@@ -301,13 +301,13 @@ export default function ProfilePage() {
 
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                <label className="block text-sm font-medium text-lux-muted mb-1.5">
                   Address
                 </label>
                 <div className="relative">
                   <MapPin
                     size={16}
-                    className="absolute left-3.5 top-3.5 text-text-muted"
+                    className="absolute left-3.5 top-3.5 text-lux-muted"
                   />
                   <textarea
                     name="address"
@@ -315,7 +315,7 @@ export default function ProfilePage() {
                     onChange={handleProfileChange}
                     placeholder="Your address..."
                     rows={2}
-                    className="w-full bg-surface-700 border border-surface-600 rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all resize-none"
+                    className="w-full bg-lux-bg border border-lux-border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-lux-accent focus:ring-1 focus:ring-lux-accent/30 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -339,21 +339,21 @@ export default function ProfilePage() {
 
           {/* Change Password Card */}
           <form onSubmit={handleChangePassword}>
-            <div className="bg-surface-800 border border-surface-600/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-gold-500/20 transition-colors duration-300">
-              <h2 className="text-base font-semibold text-text-primary flex items-center gap-2">
+            <div className="bg-lux-card border border-lux-border/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-gold-500/20 transition-colors duration-300">
+              <h2 className="text-base font-semibold text-lux-text flex items-center gap-2">
                 <Lock size={18} className="text-gold-400" />
                 Change Password
               </h2>
 
               {/* Current Password */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                <label className="block text-sm font-medium text-lux-muted mb-1.5">
                   Current Password
                 </label>
                 <div className="relative">
                   <Lock
                     size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                   />
                   <input
                     type={showPasswords.current ? "text" : "password"}
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                         current: !prev.current,
                       }))
                     }
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-lux-muted hover:text-lux-muted transition-colors"
                   >
                     {showPasswords.current ? (
                       <EyeOff size={16} />
@@ -389,13 +389,13 @@ export default function ProfilePage() {
 
               {/* New Password */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                <label className="block text-sm font-medium text-lux-muted mb-1.5">
                   New Password
                 </label>
                 <div className="relative">
                   <Lock
                     size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                   />
                   <input
                     type={showPasswords.new ? "text" : "password"}
@@ -413,7 +413,7 @@ export default function ProfilePage() {
                         new: !prev.new,
                       }))
                     }
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-lux-muted hover:text-lux-muted transition-colors"
                   >
                     {showPasswords.new ? (
                       <EyeOff size={16} />
@@ -431,13 +431,13 @@ export default function ProfilePage() {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                <label className="block text-sm font-medium text-lux-muted mb-1.5">
                   Confirm New Password
                 </label>
                 <div className="relative">
                   <Lock
                     size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                   />
                   <input
                     type={showPasswords.confirm ? "text" : "password"}
@@ -455,7 +455,7 @@ export default function ProfilePage() {
                         confirm: !prev.confirm,
                       }))
                     }
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-lux-muted hover:text-lux-muted transition-colors"
                   >
                     {showPasswords.confirm ? (
                       <EyeOff size={16} />
@@ -494,3 +494,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

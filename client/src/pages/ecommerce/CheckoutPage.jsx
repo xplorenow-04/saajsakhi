@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   ShoppingBag,
@@ -109,9 +109,9 @@ export default function CheckoutPage() {
 
   if (cartLoading) {
     return (
-      <div className="min-h-screen bg-surface-900">
+      <div className="min-h-screen bg-lux-bg">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <LoadingSkeleton type="detail" count={1} />
           </div>
@@ -144,36 +144,36 @@ export default function CheckoutPage() {
   if (orderSuccess) {
     const order = orderSuccess.order || orderSuccess;
     return (
-      <div className="min-h-screen bg-surface-900">
+      <div className="min-h-screen bg-lux-bg">
         <Navbar />
-        <main className="pt-24 pb-16 min-h-[80vh] flex items-center justify-center">
+        <main className="pt-32 pb-16 min-h-[80vh] flex items-center justify-center">
           <div className="max-w-lg mx-auto px-4 text-center">
             <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={44} className="text-success" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-lux-text mb-2">
               Order Placed Successfully!
             </h2>
-            <p className="text-text-muted text-sm mb-6">
+            <p className="text-lux-muted text-sm mb-6">
               Thank you for your order. Your order has been placed and we will contact you shortly.
             </p>
 
-            <div className="bg-surface-800 border border-gold-500/20 rounded-2xl p-6 mb-8 text-left space-y-3 shadow-[0_8px_30px_rgba(212,175,55,0.05)]">
+            <div className="bg-lux-card border border-gold-500/20 rounded-2xl p-6 mb-8 text-left space-y-3 shadow-[0_8px_30px_rgba(212,175,55,0.05)]">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Order ID</span>
-                <span className="text-text-primary font-medium">
+                <span className="text-lux-muted">Order ID</span>
+                <span className="text-lux-text font-medium">
                   {order.orderId || "N/A"}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Items</span>
-                <span className="text-text-primary font-medium">
+                <span className="text-lux-muted">Items</span>
+                <span className="text-lux-text font-medium">
                   {items.length}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Total</span>
-                <span className="text-lg font-bold text-accent">
+                <span className="text-lux-muted">Total</span>
+                <span className="text-lg font-bold text-lux-accent">
                   {formatPrice(total)}
                 </span>
               </div>
@@ -182,13 +182,13 @@ export default function CheckoutPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/orders"
-                className="text-sm font-medium text-accent hover:text-accent-light transition-colors"
+                className="text-sm font-medium text-lux-accent hover:text-lux-accent transition-colors"
               >
                 View My Orders
               </Link>
               <Link
                 to="/shop"
-                className="text-sm text-text-muted hover:text-accent transition-colors"
+                className="text-sm text-lux-muted hover:text-lux-accent transition-colors"
               >
                 Continue Shopping
               </Link>
@@ -201,16 +201,16 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-900">
+    <div className="min-h-screen bg-lux-bg">
       <Navbar />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-lux-text">
               Checkout
             </h1>
-            <p className="text-sm text-text-muted mt-1">
+            <p className="text-sm text-lux-muted mt-1">
               Complete your order by filling in the details below
             </p>
           </div>
@@ -218,27 +218,27 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10">
             <div className="lg:col-span-3">
               <form onSubmit={handlePlaceOrder}>
-                <div className="bg-surface-800 border border-surface-600/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-                  <h2 className="text-base font-semibold text-text-primary flex items-center gap-2">
-                    <MapPin size={18} className="text-accent" />
+                <div className="bg-lux-card border border-lux-border/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                  <h2 className="text-base font-semibold text-lux-text flex items-center gap-2">
+                    <MapPin size={18} className="text-lux-accent" />
                     Shipping Address
                   </h2>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    <label className="block text-sm font-medium text-lux-muted mb-1.5">
                       Full Name
                     </label>
                     <div className="relative">
-                      <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+                      <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted" />
                       <input
                         type="text"
                         name="name"
                         value={form.name}
                         onChange={handleChange}
                         placeholder="John Doe"
-                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.name
+                        className={`w-full bg-lux-bg border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.name
                           ? "border-danger focus:border-danger focus:ring-danger/30"
-                          : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                          : "border-lux-border focus:border-lux-accent focus:ring-lux-accent/30"
                           }`}
                       />
                     </div>
@@ -248,11 +248,11 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    <label className="block text-sm font-medium text-lux-muted mb-1.5">
                       Phone Number
                     </label>
                     <div className="relative">
-                      <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+                      <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted" />
                       <input
                         type="tel"
                         name="phone"
@@ -260,9 +260,9 @@ export default function CheckoutPage() {
                         onChange={handleChange}
                         placeholder="9876543210"
                         maxLength={10}
-                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.phone
+                        className={`w-full bg-lux-bg border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.phone
                           ? "border-danger focus:border-danger focus:ring-danger/30"
-                          : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                          : "border-lux-border focus:border-lux-accent focus:ring-lux-accent/30"
                           }`}
                       />
                     </div>
@@ -272,20 +272,20 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                    <label className="block text-sm font-medium text-lux-muted mb-1.5">
                       Address
                     </label>
                     <div className="relative">
-                      <Home size={16} className="absolute left-3.5 top-3.5 text-text-muted" />
+                      <Home size={16} className="absolute left-3.5 top-3.5 text-lux-muted" />
                       <textarea
                         name="address"
                         value={form.address}
                         onChange={handleChange}
                         placeholder="Street, building, area..."
                         rows={3}
-                        className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all resize-none ${errors.address
+                        className={`w-full bg-lux-bg border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:ring-1 transition-all resize-none ${errors.address
                           ? "border-danger focus:border-danger focus:ring-danger/30"
-                          : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                          : "border-lux-border focus:border-lux-accent focus:ring-lux-accent/30"
                           }`}
                       />
                     </div>
@@ -296,20 +296,20 @@ export default function CheckoutPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                      <label className="block text-sm font-medium text-lux-muted mb-1.5">
                         City
                       </label>
                       <div className="relative">
-                        <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+                        <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted" />
                         <input
                           type="text"
                           name="city"
                           value={form.city}
                           onChange={handleChange}
                           placeholder="Mumbai"
-                          className={`w-full bg-surface-700 border rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.city
+                          className={`w-full bg-lux-bg border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.city
                             ? "border-danger focus:border-danger focus:ring-danger/30"
-                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                            : "border-lux-border focus:border-lux-accent focus:ring-lux-accent/30"
                             }`}
                         />
                       </div>
@@ -318,7 +318,7 @@ export default function CheckoutPage() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                      <label className="block text-sm font-medium text-lux-muted mb-1.5">
                         Pincode
                       </label>
                       <div className="relative">
@@ -329,9 +329,9 @@ export default function CheckoutPage() {
                           onChange={handleChange}
                           placeholder="400001"
                           maxLength={6}
-                          className={`w-full bg-surface-700 border rounded-xl pl-4 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.pincode
+                          className={`w-full bg-lux-bg border rounded-xl pl-4 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:ring-1 transition-all ${errors.pincode
                             ? "border-danger focus:border-danger focus:ring-danger/30"
-                            : "border-surface-600 focus:border-accent focus:ring-accent/30"
+                            : "border-lux-border focus:border-lux-accent focus:ring-lux-accent/30"
                             }`}
                         />
                       </div>
@@ -356,9 +356,9 @@ export default function CheckoutPage() {
             </div>
 
             <div className="lg:col-span-2">
-              <div className="sticky top-28 bg-surface-800 border border-surface-600/30 rounded-2xl p-6 space-y-5 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-                <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
-                  <ShoppingBag size={18} className="text-accent" />
+              <div className="sticky top-28 bg-lux-card border border-lux-border/30 rounded-2xl p-6 space-y-5 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                <h3 className="text-base font-semibold text-lux-text flex items-center gap-2">
+                  <ShoppingBag size={18} className="text-lux-accent" />
                   Order Summary
                 </h3>
 
@@ -378,7 +378,7 @@ export default function CheckoutPage() {
 
                     return (
                       <div key={item._id} className="flex items-center gap-3">
-                        <div className="w-14 h-16 rounded-lg overflow-hidden bg-surface-950 border border-surface-600/40 shrink-0">
+                        <div className="w-14 h-16 rounded-lg overflow-hidden bg-lux-bg border border-lux-border/40 shrink-0">
                           <img
                             src={imageUrl}
                             alt={product.name}
@@ -387,14 +387,14 @@ export default function CheckoutPage() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-text-primary truncate">
+                          <p className="text-sm font-medium text-lux-text truncate">
                             {product.name}
                           </p>
-                          <p className="text-xs text-text-muted">
+                          <p className="text-xs text-lux-muted">
                             Qty: {item.quantity}
                             {item.size && ` | Size: ${item.size}`}
                           </p>
-                          <p className="text-sm font-medium text-accent mt-0.5">
+                          <p className="text-sm font-medium text-lux-accent mt-0.5">
                             {formatPrice(discPrice * item.quantity)}
                           </p>
                         </div>
@@ -403,36 +403,36 @@ export default function CheckoutPage() {
                   })}
                 </div>
 
-                <div className="h-px bg-surface-700" />
+                <div className="h-px bg-lux-bg" />
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-text-muted">Subtotal</span>
-                    <span className="text-text-secondary">{formatPrice(subtotal)}</span>
+                    <span className="text-lux-muted">Subtotal</span>
+                    <span className="text-lux-muted">{formatPrice(subtotal)}</span>
                   </div>
                   {totalDiscount > 0 && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-text-muted">Discount</span>
+                      <span className="text-lux-muted">Discount</span>
                       <span className="text-success">-{formatPrice(totalDiscount)}</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-text-muted">Delivery</span>
-                    <span className={deliveryCharge === 0 ? "text-success" : "text-text-secondary"}>
+                    <span className="text-lux-muted">Delivery</span>
+                    <span className={deliveryCharge === 0 ? "text-success" : "text-lux-muted"}>
                       {deliveryCharge === 0 ? "Free" : formatPrice(deliveryCharge)}
                     </span>
                   </div>
                   {deliveryCharge > 0 && (
-                    <p className="text-xs text-text-muted">
-                      Free delivery on orders above <span className="text-text-secondary">Rs.999</span>
+                    <p className="text-xs text-lux-muted">
+                      Free delivery on orders above <span className="text-lux-muted">Rs.999</span>
                     </p>
                   )}
 
-                  <div className="h-px bg-surface-700" />
+                  <div className="h-px bg-lux-bg" />
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-text-primary">Total</span>
-                    <span className="text-lg font-bold text-accent">{formatPrice(total)}</span>
+                    <span className="text-sm font-semibold text-lux-text">Total</span>
+                    <span className="text-lg font-bold text-lux-accent">{formatPrice(total)}</span>
                   </div>
                 </div>
               </div>
@@ -445,3 +445,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

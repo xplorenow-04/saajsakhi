@@ -1,38 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Heart,
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
-  Send,
-  ArrowRight,
-} from "lucide-react";
+import { Mail, Phone, MapPin, Heart, Instagram, Send, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { productApi } from "../../api/product.api";
 
 const companyLinks = [
   { name: "About Us", path: "/" },
   { name: "Shop", path: "/shop" },
-  { name: "Orders", path: "/orders" },
+  { name: "My Orders", path: "/orders" },
+  { name: "My Profile", path: "/profile" },
 ];
 
 const helpLinks = [
   { name: "Shipping Info", path: "/" },
   { name: "Returns & Exchanges", path: "/" },
+  { name: "Size Guide", path: "/" },
   { name: "FAQ", path: "/" },
   { name: "Contact Us", path: "/" },
-];
-
-const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Youtube, href: "#", label: "Youtube" },
 ];
 
 export default function Footer() {
@@ -48,99 +32,103 @@ export default function Footer() {
   const handleNewsletter = (e) => {
     e.preventDefault();
     if (email.trim()) {
-      toast.success("Subscribed to newsletter!");
+      toast.success("Welcome! You're now subscribed.");
       setEmail("");
     }
   };
 
   return (
-    <footer className="bg-surface-900 border-t border-surface-700/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 py-14 lg:py-16">
-          {/* Brand Column */}
-          <div className="lg:col-span-1">
-            <Link to="/" className="inline-block group">
-              <h2 className="text-xl font-bold tracking-[0.25em] font-luxury text-gradient-gold">
-                SAAJSAKHEE
+    <footer className="bg-lux-text text-white">
+      {/* Newsletter strip */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="text-center lg:text-left">
+              <h2 className="text-2xl lg:text-3xl font-display font-bold text-white mb-2">
+                Stay in Style
               </h2>
-            </Link>
-            <p className="mt-4 text-sm text-text-muted leading-relaxed">
-              Curating the finest in traditional and contemporary fashion. Every
-              piece tells a story of craftsmanship and elegance.
-            </p>
-            <div className="mt-5 space-y-2.5">
-              <a
-                href="mailto:hello@saajsakhee.com"
-                className="flex items-center gap-2.5 text-sm text-text-muted hover:text-accent transition-colors"
-              >
-                <Mail size={14} />
-                hello@saajsakhee.com
-              </a>
-              <a
-                href="tel:+1234567890"
-                className="flex items-center gap-2.5 text-sm text-text-muted hover:text-accent transition-colors"
-              >
-                <Phone size={14} />
-                +1 (234) 567-890
-              </a>
-              <div className="flex items-start gap-2.5 text-sm text-text-muted">
-                <MapPin size={14} className="mt-0.5 shrink-0" />
-                <span>123 Fashion Street, Design District, NY 10001</span>
+              <p className="text-white/60 text-sm max-w-md">
+                Subscribe to our newsletter for exclusive drops, styling tips, and early access to new collections.
+              </p>
+            </div>
+            <form onSubmit={handleNewsletter} className="flex gap-2 w-full max-w-md">
+              <div className="relative flex-1">
+                <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="w-full bg-white/10 border border-white/15 rounded-full pl-10 pr-4 py-3.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-lux-accent focus:bg-white/15 transition-all"
+                />
               </div>
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-6 py-3.5 bg-lux-accent hover:bg-lux-hover text-white text-sm font-semibold rounded-full transition-all duration-300 hover:-translate-y-0.5 shadow-warm-sm active:scale-[0.98] whitespace-nowrap"
+              >
+                Subscribe <Send size={14} />
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Main footer */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+
+          {/* Brand column */}
+          <div className="lg:col-span-2 space-y-5">
+            <div>
+              <h3 className="text-2xl font-display font-bold tracking-[0.15em] text-white">SAAJSAKHEE</h3>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-white/40 font-medium mt-0.5">Women's Fashion</p>
+            </div>
+            <p className="text-sm text-white/55 leading-relaxed max-w-xs">
+              Crafting timeless pieces for the modern woman. Where elegance meets everyday comfort in every stitch and style.
+            </p>
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-3 text-sm text-white/50">
+                <Mail size={14} className="text-lux-accent" />
+                <span>hello@saajsakhee.in</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-white/50">
+                <Phone size={14} className="text-lux-accent" />
+                <span>+91 98765 43210</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-white/50">
+                <MapPin size={14} className="text-lux-accent" />
+                <span>Mumbai, Maharashtra, India</span>
+              </div>
+            </div>
+            {/* Social */}
+            <div className="flex items-center gap-3 pt-2">
+              {[
+                { icon: Instagram, label: "Instagram" },
+              ].map(({ icon: Icon, label }) => (
+                <a
+                  key={label}
+                  href="#"
+                  aria-label={label}
+                  className="w-9 h-9 rounded-full bg-white/10 hover:bg-lux-accent flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <Icon size={16} />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Company Links */}
+          {/* Shop column */}
           <div>
-            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">
-              Company
-            </h3>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-lux-accent mb-5">Shop</h4>
             <ul className="space-y-3">
-              {companyLinks.map((link) => (
-                <li key={link.name}>
+              {categoryLinks.slice(0, 6).map((cat) => (
+                <li key={cat._id || cat.slug}>
                   <Link
-                    to={link.path}
-                    className="text-sm text-text-muted hover:text-accent transition-colors"
+                    to={`/shop?category=${cat.slug}`}
+                    className="text-sm text-white/55 hover:text-white transition-colors flex items-center gap-1.5 group"
                   >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Help Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">
-              Help
-            </h3>
-            <ul className="space-y-3">
-              {helpLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="text-sm text-text-muted hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Shop Categories */}
-          <div>
-            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">
-              Shop
-            </h3>
-            <ul className="space-y-3">
-              {categoryLinks.map((cat) => (
-                <li key={cat.slug}>
-                    <Link
-                      to={`/shop?category=${cat.slug}`}
-                    className="text-sm text-text-muted hover:text-accent transition-colors"
-                  >
+                    <ArrowRight size={11} className="opacity-0 group-hover:opacity-100 transition-opacity -ml-3 group-hover:ml-0" />
                     {cat.name}
                   </Link>
                 </li>
@@ -148,76 +136,51 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter & Social */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">
-              Follow Us
-            </h3>
-            <div className="flex items-center gap-3 mb-6">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    aria-label={social.label}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-800 text-text-muted border border-surface-600/60 hover:border-accent hover:text-accent transition-all duration-300"
+          {/* Company column */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-lux-accent mb-5">Company</h4>
+            <ul className="space-y-3">
+              {companyLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.path}
+                    className="text-sm text-white/55 hover:text-white transition-colors flex items-center gap-1.5 group"
                   >
-                    <Icon size={16} />
-                  </a>
-                );
-              })}
-            </div>
+                    <ArrowRight size={11} className="opacity-0 group-hover:opacity-100 transition-opacity -ml-3 group-hover:ml-0" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-3">
-              Newsletter
-            </h3>
-            <p className="text-xs text-text-muted mb-3 leading-relaxed">
-              Subscribe for exclusive offers, new arrivals, and behind-the-scenes
-              stories.
-            </p>
-            <form onSubmit={handleNewsletter} className="flex">
-              <div className="relative flex-1">
-                <Mail
-                  size={14}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email"
-                  required
-                  className="w-full bg-surface-950 border border-surface-600 rounded-l-lg pl-10 pr-3 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition-all"
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-gold-400 to-gold-600 text-neutral-950 px-4 rounded-r-lg flex items-center justify-center hover:opacity-90 active:scale-[0.97] transition-all"
-              >
-                <Send size={16} />
-              </button>
-            </form>
+          {/* Help column */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-lux-accent mb-5">Help</h4>
+            <ul className="space-y-3">
+              {helpLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.path}
+                    className="text-sm text-white/55 hover:text-white transition-colors flex items-center gap-1.5 group"
+                  >
+                    <ArrowRight size={11} className="opacity-0 group-hover:opacity-100 transition-opacity -ml-3 group-hover:ml-0" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-surface-700/50 py-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-text-muted">
-            &copy; {new Date().getFullYear()} SAAJSAKHEE. All rights reserved.
+        {/* Bottom bar */}
+        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/35">
+            © {new Date().getFullYear()} Saajsakhee. All rights reserved.
           </p>
-          <div className="flex items-center gap-5">
-            <span className="text-xs text-text-muted">
-              Privacy Policy
-            </span>
-            <span className="text-xs text-text-muted">
-              Terms of Service
-            </span>
-            <div className="flex items-center gap-1 text-xs text-text-muted">
-              <span>Made with</span>
-              <Heart size={12} className="text-danger" />
-            </div>
-          </div>
+          <p className="text-xs text-white/35 flex items-center gap-1.5">
+            Made with <Heart size={11} className="text-lux-accent fill-lux-accent" /> for modern women
+          </p>
         </div>
       </div>
     </footer>

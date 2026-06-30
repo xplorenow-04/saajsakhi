@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import * as XLSX from "xlsx";
 import {
   Plus,
@@ -244,14 +244,14 @@ export default function AdminProducts() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Products</h1>
-          <p className="text-sm text-text-muted mt-0.5">Manage your product catalog</p>
+          <h1 className="text-2xl font-bold text-lux-text">Products</h1>
+          <p className="text-sm text-lux-muted mt-0.5">Manage your product catalog</p>
         </div>
         <div className="flex items-center gap-3">
           {/* <button
             onClick={handleSeed}
             disabled={seeding}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800 border border-surface-600 text-text-secondary hover:text-text-primary hover:border-surface-500 transition-all text-sm font-medium disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lux-card border border-lux-border text-lux-muted hover:text-lux-text hover:border-surface-500 transition-all text-sm font-medium disabled:opacity-50"
           >
             <Package size={16} className={seeding ? "animate-spin" : ""} />
             {seeding ? "Seeding..." : "Seed Products"}
@@ -259,7 +259,7 @@ export default function AdminProducts() {
           <button
             onClick={handleExportExcel}
             disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary hover:bg-surface-600 transition-all text-sm font-medium disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lux-bg text-lux-muted hover:text-lux-text hover:bg-surface-600 transition-all text-sm font-medium disabled:opacity-50"
           >
             <FileDown size={16} />
             {exporting ? "Exporting..." : "Export Excel"}
@@ -275,26 +275,26 @@ export default function AdminProducts() {
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted" />
         <input
           type="text"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder="Search products..."
-          className="w-full max-w-xs bg-surface-800 border border-surface-600 rounded-xl pl-10 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+          className="w-full max-w-xs bg-lux-card border border-lux-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
         />
       </div>
 
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-16 rounded-xl bg-surface-800 animate-pulse" />
+            <div key={i} className="h-16 rounded-xl bg-lux-card animate-pulse" />
           ))}
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-16">
-          <PackageIcon className="mx-auto h-12 w-12 text-text-muted/40 mb-4" />
-          <p className="text-text-muted">No products found</p>
+          <PackageIcon className="mx-auto h-12 w-12 text-lux-muted/40 mb-4" />
+          <p className="text-lux-muted">No products found</p>
           <button
             onClick={openCreate}
             className="mt-4 text-sm text-gold-400 hover:text-gold-300 font-medium transition-colors"
@@ -303,15 +303,15 @@ export default function AdminProducts() {
           </button>
         </div>
       ) : (
-        <div className="bg-surface-800 border border-surface-600 rounded-2xl overflow-hidden">
+        <div className="bg-lux-card border border-lux-border rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-surface-600">
+                <tr className="border-b border-lux-border">
                   {["Image", "Name", "Category", "Price", "Discount", "Stock", "Views", "Status", "Featured", "Actions"].map((h) => (
                     <th
                       key={h}
-                      className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-4 py-3"
+                      className="text-left text-xs font-semibold text-lux-muted uppercase tracking-wider px-4 py-3"
                     >
                       {h}
                     </th>
@@ -320,34 +320,34 @@ export default function AdminProducts() {
               </thead>
               <tbody>
                 {products.map((product) => (
-                  <tr key={product._id} className="border-b border-surface-700/50 hover:bg-surface-700/30 transition-colors">
+                  <tr key={product._id} className="border-b border-lux-border/50 hover:bg-lux-bg/30 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="w-10 h-10 rounded-lg bg-surface-700 overflow-hidden">
+                      <div className="w-10 h-10 rounded-lg bg-lux-bg overflow-hidden">
                         {product.images?.[0] ? (
                           <img src={product.images[0].url} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon size={16} className="text-text-muted" />
+                            <ImageIcon size={16} className="text-lux-muted" />
                           </div>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-sm font-medium text-text-primary truncate max-w-[180px]">
+                      <p className="text-sm font-medium text-lux-text truncate max-w-[180px]">
                         {product.name}
                       </p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs text-text-secondary capitalize">{product.category}</span>
+                      <span className="text-xs text-lux-muted capitalize">{product.category}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm text-text-primary">₹{product.price?.toFixed(2)}</span>
+                      <span className="text-sm text-lux-text">â‚¹{product.price?.toFixed(2)}</span>
                     </td>
                     <td className="px-4 py-3">
                       {product.discount > 0 ? (
                         <span className="text-xs font-medium text-success">{product.discount}%</span>
                       ) : (
-                        <span className="text-xs text-text-muted">--</span>
+                        <span className="text-xs text-lux-muted">--</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -364,22 +364,22 @@ export default function AdminProducts() {
                                 </span>
                               );
                             })}
-                            <span className="text-[11px] text-text-muted self-center ml-1">
+                            <span className="text-[11px] text-lux-muted self-center ml-1">
                               {product.sizes.reduce((sum, s) => sum + (s.stock || 0), 0)} total
                             </span>
                           </>
                         ) : (
-                          <span className="text-xs text-text-muted">No sizes</span>
+                          <span className="text-xs text-lux-muted">No sizes</span>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs text-text-secondary">{product.viewCount ?? 0}</span>
+                      <span className="text-xs text-lux-muted">{product.viewCount ?? 0}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${product.isActive
                         ? "text-success bg-success/10"
-                        : "text-text-muted bg-surface-600"
+                        : "text-lux-muted bg-surface-600"
                         }`}>
                         {product.isActive ? "Active" : "Inactive"}
                       </span>
@@ -388,28 +388,28 @@ export default function AdminProducts() {
                       {product.isFeatured ? (
                         <Star size={15} className="text-warning fill-warning" />
                       ) : (
-                        <span className="text-xs text-text-muted">--</span>
+                        <span className="text-xs text-lux-muted">--</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEdit(product)}
-                          className="p-1.5 text-text-muted hover:text-gold-500 hover:bg-surface-600 rounded-lg transition-colors"
+                          className="p-1.5 text-lux-muted hover:text-gold-500 hover:bg-surface-600 rounded-lg transition-colors"
                           title="Edit"
                         >
                           <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(product._id)}
-                          className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                          className="p-1.5 text-lux-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
                           title="Delete"
                         >
                           <Trash2 size={15} />
                         </button>
                         <button
                           onClick={() => handleToggleActive(product)}
-                          className="p-1.5 text-text-muted hover:text-gold-500 hover:bg-surface-600 rounded-lg transition-colors"
+                          className="p-1.5 text-lux-muted hover:text-gold-500 hover:bg-surface-600 rounded-lg transition-colors"
                           title={product.isActive ? "Deactivate" : "Activate"}
                         >
                           {product.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
@@ -423,22 +423,22 @@ export default function AdminProducts() {
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-surface-600">
-              <span className="text-sm text-text-muted">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-lux-border">
+              <span className="text-sm text-lux-muted">
                 Page {page} of {totalPages}
               </span>
               <div className="flex items-center gap-2">
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-700 disabled:opacity-30 transition-colors"
+                  className="p-1.5 rounded-lg text-lux-muted hover:text-lux-text hover:bg-lux-bg disabled:opacity-30 transition-colors"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <button
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => p + 1)}
-                  className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-700 disabled:opacity-30 transition-colors"
+                  className="p-1.5 rounded-lg text-lux-muted hover:text-lux-text hover:bg-lux-bg disabled:opacity-30 transition-colors"
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -452,13 +452,13 @@ export default function AdminProducts() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)} />
-          <div className="relative bg-surface-800 border border-surface-600 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-lg font-semibold text-text-primary">Delete Product</h3>
-            <p className="text-sm text-text-muted mt-2">Are you sure? This cannot be undone.</p>
+          <div className="relative bg-lux-card border border-lux-border rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-semibold text-lux-text">Delete Product</h3>
+            <p className="text-sm text-lux-muted mt-2">Are you sure? This cannot be undone.</p>
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-4 py-2 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
+                className="flex-1 px-4 py-2 rounded-xl bg-lux-bg text-lux-muted hover:text-lux-text transition-colors text-sm font-medium"
               >
                 Cancel
               </button>
@@ -477,14 +477,14 @@ export default function AdminProducts() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 px-4 overflow-y-auto">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="relative bg-surface-800 border border-surface-600 rounded-2xl w-full max-w-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-surface-600">
-              <h2 className="text-lg font-semibold text-text-primary">
+          <div className="relative bg-lux-card border border-lux-border rounded-2xl w-full max-w-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-lux-border">
+              <h2 className="text-lg font-semibold text-lux-text">
                 {editingId ? "Edit Product" : "Add Product"}
               </h2>
               <button
                 onClick={() => { setModalOpen(false); resetForm(); }}
-                className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-700 transition-colors"
+                className="p-1.5 text-lux-muted hover:text-lux-text rounded-lg hover:bg-lux-bg transition-colors"
               >
                 <X size={18} />
               </button>
@@ -493,33 +493,33 @@ export default function AdminProducts() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Name</label>
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">Name</label>
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+                    className="w-full bg-lux-bg border border-lux-border rounded-xl px-4 py-2.5 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
                     placeholder="Product name"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Description</label>
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">Description</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
                     rows={3}
-                    className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all resize-none"
+                    className="w-full bg-lux-bg border border-lux-border rounded-xl px-4 py-2.5 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all resize-none"
                     placeholder="Product description"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Category</label>
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">Category</label>
                   <select
                     value={form.category}
                     onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-                    className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+                    className="w-full bg-lux-bg border border-lux-border rounded-xl px-4 py-2.5 text-sm text-lux-text focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
                   >
                     <option value="">Select category</option>
                     {categories.map((c) => (
@@ -529,26 +529,26 @@ export default function AdminProducts() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Price (₹)</label>
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">Price (â‚¹)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={form.price}
                     onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
-                    className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+                    className="w-full bg-lux-bg border border-lux-border rounded-xl px-4 py-2.5 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
                     placeholder="0.00"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5">Discount (%)</label>
+                  <label className="block text-sm font-medium text-lux-muted mb-1.5">Discount (%)</label>
                   <input
                     type="number"
                     min="0"
                     max="100"
                     value={form.discount}
                     onChange={(e) => setForm((p) => ({ ...p, discount: e.target.value }))}
-                    className="w-full bg-surface-700 border border-surface-600 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+                    className="w-full bg-lux-bg border border-lux-border rounded-xl px-4 py-2.5 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
                     placeholder="0"
                   />
                 </div>
@@ -566,7 +566,7 @@ export default function AdminProducts() {
                         <div className={`w-4 h-4 rounded-full bg-white mt-0.5 shadow transition-transform ${form.isFeatured ? "translate-x-5" : "translate-x-0.5"}`} />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+                    <div className="flex items-center gap-2 text-sm text-lux-muted group-hover:text-lux-text transition-colors">
                       <Star size={14} className={form.isFeatured ? "fill-warning text-warning" : ""} />
                       Featured Product
                     </div>
@@ -576,21 +576,21 @@ export default function AdminProducts() {
 
               {/* Sizes */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Sizes</label>
+                <label className="block text-sm font-medium text-lux-muted mb-1.5">Sizes</label>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
                     value={sizeInput.size}
                     onChange={(e) => setSizeInput((p) => ({ ...p, size: e.target.value }))}
                     placeholder="e.g. M"
-                    className="flex-1 bg-surface-700 border border-surface-600 rounded-xl px-4 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+                    className="flex-1 bg-lux-bg border border-lux-border rounded-xl px-4 py-2 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
                   />
                   <input
                     type="number"
                     value={sizeInput.stock}
                     onChange={(e) => setSizeInput((p) => ({ ...p, stock: e.target.value }))}
                     placeholder="Stock"
-                    className="w-24 bg-surface-700 border border-surface-600 rounded-xl px-4 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
+                    className="w-24 bg-lux-bg border border-lux-border rounded-xl px-4 py-2 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-all"
                   />
                   <button
                     type="button"
@@ -605,10 +605,10 @@ export default function AdminProducts() {
                     {form.sizes.map((s, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-700 text-sm text-text-secondary"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-lux-bg text-sm text-lux-muted"
                       >
                         {s.size} ({s.stock})
-                        <button type="button" onClick={() => removeSize(i)} className="text-text-muted hover:text-danger transition-colors">
+                        <button type="button" onClick={() => removeSize(i)} className="text-lux-muted hover:text-danger transition-colors">
                           <X size={14} />
                         </button>
                       </span>
@@ -619,10 +619,10 @@ export default function AdminProducts() {
 
               {/* Image Upload */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Images</label>
-                <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-surface-600 rounded-xl bg-surface-700/30 cursor-pointer hover:border-gold-500/40 hover:bg-surface-700/50 transition-all">
-                  <Upload size={20} className="text-text-muted" />
-                  <span className="text-sm text-text-muted">Click to upload images</span>
+                <label className="block text-sm font-medium text-lux-muted mb-1.5">Images</label>
+                <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-lux-border rounded-xl bg-lux-bg/30 cursor-pointer hover:border-gold-500/40 hover:bg-lux-bg/50 transition-all">
+                  <Upload size={20} className="text-lux-muted" />
+                  <span className="text-sm text-lux-muted">Click to upload images</span>
                   <input
                     type="file"
                     multiple
@@ -653,7 +653,7 @@ export default function AdminProducts() {
                 <button
                   type="button"
                   onClick={() => { setModalOpen(false); resetForm(); }}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-surface-700 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-lux-bg text-lux-muted hover:text-lux-text transition-colors text-sm font-medium"
                 >
                   Cancel
                 </button>
@@ -681,3 +681,4 @@ function PackageIcon(props) {
     </svg>
   );
 }
+

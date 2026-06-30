@@ -197,7 +197,7 @@ export default function ProductListing() {
     <div className="space-y-8">
       {/* Category Filter */}
       <div>
-        <h4 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-3">
+        <h4 className="text-sm font-semibold text-lux-text uppercase tracking-wider mb-3">
           Category
         </h4>
         <div className="space-y-2">
@@ -206,9 +206,9 @@ export default function ProductListing() {
               type="checkbox"
               checked={!currentCategory}
               onChange={() => updateParams({ category: "" })}
-              className="w-4 h-4 rounded bg-surface-700 border-surface-500 text-accent focus:ring-accent/30 focus:ring-offset-0 cursor-pointer"
+              className="w-4 h-4 rounded bg-lux-bg border-surface-500 text-lux-accent focus:ring-lux-accent/30 focus:ring-offset-0 cursor-pointer"
             />
-            <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+            <span className="text-sm text-lux-muted group-hover:text-lux-text transition-colors">
               All
             </span>
           </label>
@@ -223,9 +223,9 @@ export default function ProductListing() {
                 onChange={() =>
                   updateParams({ category: currentCategory === cat.slug ? "" : cat.slug })
                 }
-                className="w-4 h-4 rounded bg-surface-700 border-surface-500 text-accent focus:ring-accent/30 focus:ring-offset-0 cursor-pointer"
+                className="w-4 h-4 rounded bg-lux-bg border-surface-500 text-lux-accent focus:ring-lux-accent/30 focus:ring-offset-0 cursor-pointer"
               />
-              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+              <span className="text-sm text-lux-muted group-hover:text-lux-text transition-colors">
                 {cat.name}
               </span>
             </label>
@@ -235,7 +235,7 @@ export default function ProductListing() {
 
       {/* Price Range Filter */}
       <div>
-        <h4 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-3">
+        <h4 className="text-sm font-semibold text-lux-text uppercase tracking-wider mb-3">
           Price Range
         </h4>
         <div className="flex items-center gap-2">
@@ -244,22 +244,22 @@ export default function ProductListing() {
             placeholder="Min"
             value={currentMinPrice}
             onChange={(e) => updateParams({ minPrice: e.target.value })}
-            className="w-full bg-surface-800 border border-surface-600 rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+            className="w-full bg-lux-card border border-lux-border rounded-lg px-3 py-2 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-lux-accent focus:ring-1 focus:ring-lux-accent/30 transition-all"
           />
-          <span className="text-text-muted text-sm">-</span>
+          <span className="text-lux-muted text-sm">-</span>
           <input
             type="number"
             placeholder="Max"
             value={currentMaxPrice}
             onChange={(e) => updateParams({ maxPrice: e.target.value })}
-            className="w-full bg-surface-800 border border-surface-600 rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+            className="w-full bg-lux-card border border-lux-border rounded-lg px-3 py-2 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-lux-accent focus:ring-1 focus:ring-lux-accent/30 transition-all"
           />
         </div>
       </div>
 
       {/* Size Filter */}
       <div>
-        <h4 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-3">
+        <h4 className="text-sm font-semibold text-lux-text uppercase tracking-wider mb-3">
           Size
         </h4>
         <div className="flex flex-wrap gap-2">
@@ -270,8 +270,8 @@ export default function ProductListing() {
                 key={size}
                 onClick={() => toggleSize(size)}
                 className={`px-3.5 py-2 text-xs font-semibold rounded-lg border transition-all ${isActive
-                    ? "bg-gradient-to-r from-gold-200 to-gold-500 border-transparent text-neutral-950 shadow-[0_2px_10px_rgba(212,175,55,0.2)]"
-                    : "bg-surface-950 border-surface-600 text-text-secondary hover:border-gold-500/40 hover:text-gold-400"
+                    ? "bg-gradient-to-r bg-lux-accent to-gold-500 border-transparent text-neutral-950 shadow-[0_2px_10px_rgba(212,175,55,0.2)]"
+                    : "bg-lux-bg border-lux-border text-lux-muted hover:border-gold-500/40 hover:text-gold-400"
                   }`}
               >
                 {size}
@@ -283,7 +283,7 @@ export default function ProductListing() {
 
       {/* Discount Filter */}
       <div>
-        <h4 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-3">
+        <h4 className="text-sm font-semibold text-lux-text uppercase tracking-wider mb-3">
           Discount
         </h4>
         <div className="space-y-2">
@@ -303,7 +303,7 @@ export default function ProductListing() {
                 }
                 className="w-4 h-4 accent-accent cursor-pointer"
               />
-              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+              <span className="text-sm text-lux-muted group-hover:text-lux-text transition-colors">
                 {range.label}
               </span>
             </label>
@@ -314,21 +314,21 @@ export default function ProductListing() {
   );
 
   return (
-    <div className="min-h-screen bg-surface-900">
+    <div className="min-h-screen bg-lux-bg">
       <Navbar />
 
       <main className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-lux-text">
               {currentCategory
                 ? categories.find((c) => c.slug === currentCategory)?.name ||
                 "Products"
                 : "All Products"}
             </h1>
             {!loading && (
-              <p className="text-sm text-text-muted mt-1">
+              <p className="text-sm text-lux-muted mt-1">
                 {totalProducts} product{totalProducts !== 1 ? "s" : ""} found
               </p>
             )}
@@ -340,7 +340,7 @@ export default function ProductListing() {
               <div className="relative">
                 <Search
                   size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lux-muted"
                 />
                 <input
                   type="text"
@@ -348,27 +348,27 @@ export default function ProductListing() {
                   onChange={(e) => setSearchInput(e.target.value)}
                   onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
                   placeholder="Search products..."
-                  className="w-full bg-surface-800 border border-surface-600 rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all"
+                  className="w-full bg-lux-card border border-lux-border rounded-xl pl-10 pr-4 py-3 text-sm text-lux-text placeholder-text-muted focus:outline-none focus:border-lux-accent focus:ring-1 focus:ring-lux-accent/30 transition-all"
                 />
                 {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-surface-900/95 backdrop-blur-xl border border-surface-600/60 rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.85)] overflow-hidden z-50">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-lux-bg/95 backdrop-blur-xl border border-lux-border/60 rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.85)] overflow-hidden z-50">
                     {suggestions.map((p) => (
                        <Link
                         key={p._id}
                         to={`/shop/${p.slug}`}
                         onClick={() => { setSearchInput(""); setShowSuggestions(false); }}
-                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-800/80 transition-colors border-b border-surface-600/20 last:border-0"
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-lux-card/80 transition-colors border-b border-lux-border/20 last:border-0"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-surface-800 overflow-hidden shrink-0 border border-surface-600/40">
+                        <div className="w-8 h-8 rounded-lg bg-lux-card overflow-hidden shrink-0 border border-lux-border/40">
                           {p.image ? (
                             <img src={p.image} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Search size={12} className="text-text-muted" />
+                              <Search size={12} className="text-lux-muted" />
                             </div>
                           )}
                         </div>
-                        <span className="text-sm text-text-primary truncate">{p.name}</span>
+                        <span className="text-sm text-lux-text truncate">{p.name}</span>
                       </Link>
                     ))}
                   </div>
@@ -381,7 +381,7 @@ export default function ProductListing() {
                 <select
                   value={currentSort}
                   onChange={(e) => updateParams({ sort: e.target.value })}
-                  className="appearance-none bg-surface-800 border border-surface-600 rounded-xl pl-4 pr-10 py-3 text-sm text-text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all cursor-pointer"
+                  className="appearance-none bg-lux-card border border-lux-border rounded-xl pl-4 pr-10 py-3 text-sm text-lux-text focus:outline-none focus:border-lux-accent focus:ring-1 focus:ring-lux-accent/30 transition-all cursor-pointer"
                 >
                   {sortOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -391,13 +391,13 @@ export default function ProductListing() {
                 </select>
                 <ChevronDown
                   size={16}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-lux-muted pointer-events-none"
                 />
               </div>
 
               <button
                 onClick={() => setMobileFiltersOpen(true)}
-                className="lg:hidden flex items-center gap-2 bg-surface-800 border border-surface-600 rounded-xl px-4 py-3 text-sm text-text-secondary hover:border-accent/50 transition-all"
+                className="lg:hidden flex items-center gap-2 bg-lux-card border border-lux-border rounded-xl px-4 py-3 text-sm text-lux-muted hover:border-lux-accent/50 transition-all"
               >
                 <SlidersHorizontal size={16} />
                 Filters
@@ -409,12 +409,12 @@ export default function ProductListing() {
           {hasActiveFilters && (
             <div className="flex flex-wrap items-center gap-2 mb-6">
               {currentCategory && (
-                <span className="inline-flex items-center gap-1.5 bg-accent/10 text-accent text-xs font-medium px-3 py-1.5 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-lux-accent/10 text-lux-accent text-xs font-medium px-3 py-1.5 rounded-full">
                   {categories.find((c) => c.slug === currentCategory)?.name ||
                     currentCategory}
                   <button
                     onClick={() => updateParams({ category: "" })}
-                    className="hover:text-accent-light"
+                    className="hover:text-lux-accent-light"
                   >
                     <X size={12} />
                   </button>
@@ -423,7 +423,7 @@ export default function ProductListing() {
               {currentSizes.map((size) => (
                 <span
                   key={size}
-                  className="inline-flex items-center gap-1.5 bg-accent/10 text-accent text-xs font-medium px-3 py-1.5 rounded-full"
+                  className="inline-flex items-center gap-1.5 bg-lux-accent/10 text-lux-accent text-xs font-medium px-3 py-1.5 rounded-full"
                 >
                   Size {size}
                   <button onClick={() => toggleSize(size)}>
@@ -432,7 +432,7 @@ export default function ProductListing() {
                 </span>
               ))}
               {currentDiscount && (
-                <span className="inline-flex items-center gap-1.5 bg-accent/10 text-accent text-xs font-medium px-3 py-1.5 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-lux-accent/10 text-lux-accent text-xs font-medium px-3 py-1.5 rounded-full">
                   {currentDiscount}%+ off
                   <button onClick={() => updateParams({ discount: "" })}>
                     <X size={12} />
@@ -441,7 +441,7 @@ export default function ProductListing() {
               )}
               <button
                 onClick={clearAllFilters}
-                className="inline-flex items-center gap-1.5 text-text-muted hover:text-text-secondary text-xs font-medium px-3 py-1.5 rounded-full border border-surface-600 hover:border-surface-500 transition-all"
+                className="inline-flex items-center gap-1.5 text-lux-muted hover:text-lux-muted text-xs font-medium px-3 py-1.5 rounded-full border border-lux-border hover:border-surface-500 transition-all"
               >
                 <RotateCcw size={12} />
                 Clear All
@@ -452,7 +452,7 @@ export default function ProductListing() {
           <div className="flex gap-8 lg:gap-10">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-28 bg-surface-800/50 border border-surface-700/50 rounded-2xl p-6">
+              <div className="sticky top-28 bg-lux-card/50 border border-lux-border/50 rounded-2xl p-6">
                 <FilterSidebar />
               </div>
             </aside>
@@ -479,7 +479,7 @@ export default function ProductListing() {
                           updateParams({ page: String(currentPage - 1) })
                         }
                         disabled={currentPage <= 1}
-                        className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-600 flex items-center justify-center text-text-secondary hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="w-10 h-10 rounded-xl bg-lux-card border border-lux-border flex items-center justify-center text-lux-muted hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronLeft size={18} />
                       </button>
@@ -504,8 +504,8 @@ export default function ProductListing() {
                                 updateParams({ page: String(pageNum) })
                               }
                               className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all ${currentPage === pageNum
-                                  ? "bg-gradient-to-r from-gold-200 to-gold-500 text-neutral-950 shadow-[0_4px_12px_rgba(212,175,55,0.25)] border-transparent"
-                                  : "bg-surface-800 border border-surface-600 text-text-secondary hover:text-gold-400 hover:border-gold-500/30"
+                                  ? "bg-gradient-to-r bg-lux-accent to-gold-500 text-neutral-950 shadow-[0_4px_12px_rgba(212,175,55,0.25)] border-transparent"
+                                  : "bg-lux-card border border-lux-border text-lux-muted hover:text-gold-400 hover:border-gold-500/30"
                                 }`}
                             >
                               {pageNum}
@@ -519,7 +519,7 @@ export default function ProductListing() {
                           updateParams({ page: String(currentPage + 1) })
                         }
                         disabled={currentPage >= totalPages}
-                        className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-600 flex items-center justify-center text-text-secondary hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="w-10 h-10 rounded-xl bg-lux-card border border-lux-border flex items-center justify-center text-lux-muted hover:text-gold-400 hover:border-gold-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronRight size={18} />
                       </button>
@@ -547,14 +547,14 @@ export default function ProductListing() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-surface-900 border-l border-surface-700 overflow-y-auto animate-slide-up">
-            <div className="sticky top-0 bg-surface-900 border-b border-surface-700 px-5 py-4 flex items-center justify-between z-10">
-              <h3 className="text-base font-semibold text-text-primary">
+          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-lux-bg border-l border-lux-border overflow-y-auto animate-slide-up">
+            <div className="sticky top-0 bg-lux-bg border-b border-lux-border px-5 py-4 flex items-center justify-between z-10">
+              <h3 className="text-base font-semibold text-lux-text">
                 Filters
               </h3>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-surface-700 text-text-muted hover:text-text-primary transition-colors"
+                className="p-1.5 rounded-lg hover:bg-lux-bg text-lux-muted hover:text-lux-text transition-colors"
               >
                 <X size={20} />
               </button>
@@ -562,13 +562,13 @@ export default function ProductListing() {
             <div className="p-5">
               <FilterSidebar />
             </div>
-            <div className="sticky bottom-0 bg-surface-900 border-t border-surface-700 px-5 py-4">
+            <div className="sticky bottom-0 bg-lux-bg border-t border-lux-border px-5 py-4">
               <button
                 onClick={() => {
                   clearAllFilters();
                   setMobileFiltersOpen(false);
                 }}
-                className="w-full bg-gradient-to-r from-gold-200 via-gold-500 to-gold-600 text-neutral-950 font-bold py-3 rounded-xl transition-all shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:opacity-95"
+                className="w-full bg-gradient-to-r bg-lux-accent via-gold-500 to-gold-600 text-neutral-950 font-bold py-3 rounded-xl transition-all shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:opacity-95"
               >
                 Apply Filters
               </button>

@@ -1,34 +1,28 @@
 import { Link } from "react-router-dom";
-import { Package } from "lucide-react";
+import { ShoppingBag, Package, Search, Heart } from "lucide-react";
+
+const icons = { ShoppingBag, Package, Search, Heart };
 
 export default function EmptyState({
-  icon: Icon = Package,
-  title = "Nothing here yet",
-  description = "",
+  icon,
+  title = "Nothing here",
+  description = "Looks like there's nothing to display.",
   actionLabel,
   actionLink,
 }) {
+  const Icon = typeof icon === "string" ? icons[icon] : icon;
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-20 h-20 rounded-full bg-surface-800 border border-surface-700/50 flex items-center justify-center mb-5">
-        <Icon size={36} className="text-text-muted" />
-      </div>
-
-      <h3 className="text-lg font-semibold text-text-primary mb-1.5">
-        {title}
-      </h3>
-
-      {description && (
-        <p className="text-sm text-text-muted text-center max-w-sm mb-6 leading-relaxed">
-          {description}
-        </p>
+    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+      {Icon && (
+        <div className="w-20 h-20 rounded-2xl bg-lux-light flex items-center justify-center mb-6">
+          <Icon size={32} className="text-lux-accent" strokeWidth={1.5} />
+        </div>
       )}
-
+      <h3 className="font-display text-xl font-bold text-lux-text mb-2">{title}</h3>
+      <p className="text-sm text-lux-muted max-w-xs leading-relaxed mb-6">{description}</p>
       {actionLabel && actionLink && (
-        <Link
-          to={actionLink}
-          className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
-        >
+        <Link to={actionLink} className="btn-luxury text-sm">
           {actionLabel}
         </Link>
       )}
