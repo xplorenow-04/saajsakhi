@@ -229,7 +229,14 @@ class OrderService {
     async adminGetAllOrders(query, page = 1, limit = 20) {
         const filter = {};
         if (query.status) filter.orderStatus = query.status;
-        if (query.search) filter.orderId = { $regex: query.search, $options: "i" };
+        if (query.search) {
+            filter.$or = [
+                { orderId: { $regex: query.search, $options: "i" } },
+                { "shippingAddress.name": { $regex: query.search, $options: "i" } },
+                { "shippingAddress.phone": { $regex: query.search, $options: "i" } },
+                { $expr: { $regexMatch: { input: { $toString: "$_id" }, regex: query.search, options: "i" } } }
+            ];
+        }
         if (query.isGuestOrder) filter.isGuestOrder = query.isGuestOrder === "true";
 
         const skip = (page - 1) * limit;

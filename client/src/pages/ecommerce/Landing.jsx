@@ -184,16 +184,14 @@ export default function Landing() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-text-primary leading-[1.1] tracking-tight">
-                Discover{" "}
+                Celebrate Grace,{" "}
                 <span className="font-luxury italic text-gradient-gold">
-                  Your Style
+                  Wear Tradition
                 </span>
               </h1>
 
               <p className="mt-6 text-base sm:text-lg text-text-secondary max-w-lg leading-relaxed">
-                Elevate your wardrobe with handpicked pieces that blend tradition
-                with contemporary elegance. Curated for those who appreciate the
-                finest.
+                Discover thoughtfully crafted women’s fashion that blends timeless tradition with modern elegance — designed for confidence, beauty, and every special moment.
               </p>
 
               <div className="flex flex-wrap gap-4 mt-8">
