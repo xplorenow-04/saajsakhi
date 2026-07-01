@@ -146,7 +146,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen bg-surface-900">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-20 lg:pt-16 pb-12 lg:pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <LoadingSkeleton type="detail" count={1} />
           </div>
@@ -160,7 +160,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen bg-surface-900">
         <Navbar />
-        <main className="pt-24 pb-16">
+        <main className="pt-20 lg:pt-16 pb-12 lg:pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-center py-20">
               <div className="w-20 h-20 rounded-full bg-surface-800 border border-surface-700/50 flex items-center justify-center mb-5">
@@ -223,10 +223,10 @@ export default function ProductDetail() {
     <div className="min-h-screen bg-surface-900">
       <Navbar />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-20 lg:pt-16 pb-12 lg:pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-text-muted mb-8">
+          <nav className="flex items-center gap-2 text-sm text-text-muted mb-6">
             <Link to="/ecommerce" className="hover:text-accent transition-colors">
               Home
             </Link>
@@ -246,11 +246,11 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-surface-800 border border-surface-700/50 group">
+              <div className="relative aspect-[4/5] lg:max-h-[calc(100vh-14rem)] rounded-2xl overflow-hidden bg-surface-800 border border-surface-700/50 group">
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-opacity duration-300"
+                  className="w-full h-full object-cover lg:object-contain transition-opacity duration-300"
                   onError={(e) => {
                     e.target.src = fallbackImage;
                   }}
@@ -304,7 +304,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-6 lg:space-y-8">
+            <div className="space-y-5 lg:space-y-6">
               {/* Category */}
               {product.category && (
                 <span className="inline-block text-xs font-bold text-gold-400 uppercase tracking-widest bg-gold-500/10 border border-gold-500/20 px-3.5 py-1.5 rounded-full">
@@ -456,7 +456,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Accordion Details */}
-          <div className="mt-12 lg:mt-16 max-w-3xl">
+          <div className="mt-8 lg:mt-12 max-w-3xl">
             <div className="border-t border-surface-700/50">
               {accordionItems.map((item) => {
                 const isOpen = openAccordion === item.id;
