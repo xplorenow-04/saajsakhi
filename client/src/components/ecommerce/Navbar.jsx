@@ -18,6 +18,7 @@ import {
 import { useEcommerceStore } from "../../store/useEcommerceStore";
 import { useWishlistStore } from "../../store/useWishlistStore";
 import { userAuthStore } from "../../store/userStore";
+import { useAuth } from "../../hooks/useAuth";
 import { productApi } from "../../api/product.api";
 
 const navLinks = [
@@ -28,7 +29,7 @@ const navLinks = [
 export default function Navbar() {
   const navigate = useNavigate();
   const user = userAuthStore((s) => s.user);
-  const logout = userAuthStore((s) => s.logout);
+  const { logout } = useAuth();
   const { cartCount, fetchCart } = useEcommerceStore();
   const { wishlist, fetchWishlist } = useWishlistStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

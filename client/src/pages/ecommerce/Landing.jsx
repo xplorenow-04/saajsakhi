@@ -20,6 +20,9 @@ import ProductCard from "../../components/ecommerce/ProductCard";
 import LoadingSkeleton from "../../components/ecommerce/LoadingSkeleton";
 import { userAuthStore } from "../../store/userStore";
 
+// const features = [
+
+// ];
 const features = [
   {
     icon: Truck,
@@ -43,6 +46,25 @@ const features = [
   },
 ];
 
+const bgImages = [
+  "https://img.magnific.com/free-photo/stylish-happy-girl-shopping-portrait-modern-woman-with-shop-bag-laughing-smiling-satisfied_1258-119361.jpg?semt=ais_hybrid&w=740&q=80",
+
+  "https://img.magnific.com/free-photo/young-woman-with-shopping-bags-beautiful-dress_1303-17550.jpg?semt=ais_hybrid&w=740&q=80",
+
+  "https://static.vecteezy.com/system/resources/thumbnails/059/967/906/small_2x/stunning-woman-in-traditional-indian-dress-free-photo.jpeg",
+
+  "https://static.vecteezy.com/system/resources/thumbnails/057/184/608/small/elegant-woman-in-orange-traditional-dress-at-palace-photo.jpg",
+
+  ""
+
+];
+// const bgImages = [
+//   "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1920&q=80",
+//   "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1920&q=80",
+//   "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80",
+//   "https://images.unsplash.com/photo-1556909172-54557c2e4fb7?auto=format&fit=crop&w=1920&q=80",
+// ];
+
 const formatPrice = (price) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -56,7 +78,7 @@ export default function Landing() {
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [bgIndex, setBgIndex] = useState(0);
   const user = userAuthStore((s) => s.user);
   const isAdmin = user?.role === 'admin';
 
@@ -80,6 +102,20 @@ export default function Landing() {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % bgImages.length);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    bgImages.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
   }, []);
 
   const handleNewsletter = (e) => {
@@ -149,26 +185,21 @@ export default function Landing() {
       <main>
         {/* Hero Section */}
         <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-          {/* Background */}
+          {/* Background Slideshow */}
           <div className="absolute inset-0">
-            <div
-              className="absolute inset-0 bg-gradient-to-r from-surface-900 via-surface-900/70 to-transparent z-10"
-            />
-            <div
-              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${heroLoaded ? "opacity-100" : "opacity-0"
-                }`}
-              style={{
-                backgroundImage:
-                  'url("https://images.unsplash.com/photo-1445205170230-053b83016050?w=1920&q=80")',
-              }}
-            />
-            <img
-              src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1920&q=80"
-              alt=""
-              className="hidden"
-              onLoad={() => setHeroLoaded(true)}
-            />
-            <div className="absolute inset-0 bg-surface-900/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-surface-900 via-surface-900/70 to-transparent z-10" />
+            {bgImages.map((url, idx) => (
+              <div
+                key={idx}
+                className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+                style={{
+                  backgroundImage: `url(${url})`,
+                  opacity: idx === bgIndex ? 1 : 0,
+                  transform: idx === bgIndex ? 'scale(1)' : 'scale(1.06)',
+                }}
+              />
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-b from-surface-900/60 via-transparent to-surface-900/60" />
           </div>
 
           {/* Ambient Glow */}
